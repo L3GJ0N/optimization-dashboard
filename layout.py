@@ -55,11 +55,11 @@ def create_interactive_board() -> List[dbc.Col]:
 def create_first_row_graphs() -> List[dbc.Col]:
     first_row_graphs: List[dbc.Col] = [
         dbc.Col(
-            create_graph_card("view-3d-header", "3D View", "view-3d-graph", 700, 800),
+            create_graph_card("view-3d-header", "3D View", "view-3d-graph", 700, 900),
             width=6,
         ),
         dbc.Col(
-            create_graph_card("top-view-header", "Top View", "top-view-graph", 700, 800),
+            create_graph_card("top-view-header", "Top View", "top-view-graph", 700, 900),
             width=6,
         ),
     ]
@@ -69,11 +69,11 @@ def create_first_row_graphs() -> List[dbc.Col]:
 def create_second_row_graphs() -> List[dbc.Col]:
     second_row_graphs: List[dbc.Col] = [
         dbc.Col(
-            create_graph_card("view-2d-header", "Side View", "view-2d-graph", 700, 800),
+            create_graph_card("view-2d-header", "Side View", "view-2d-graph", 700, 900),
             width=6,
         ),
         dbc.Col(
-            create_graph_card("result-view-header", "Result View", "result-view-graph", 700, 800),
+            create_graph_card("result-view-header", "Result View", "result-view-graph", 700, 900),
             width=6,
         ),
     ]
