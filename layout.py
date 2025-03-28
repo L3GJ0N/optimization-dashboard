@@ -47,6 +47,18 @@ def create_interactive_board() -> List[dbc.Col]:
             ),
             width=2,
         ),
+        dbc.Col(
+            dcc.Input(
+                id="num-contours-input",
+                type="number",
+                min=1,
+                max=50,
+                value=10,
+                step=1,
+                placeholder="Number of contours",
+            ),
+            width=2,
+        ),
     ]
 
     return board_elements

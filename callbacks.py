@@ -14,6 +14,7 @@ from utils import get_function_instance
 def update_figures_impl(
     function_dropdown_value: str,
     epic_all_or_single_object_view: str,
+    num_contours: int,
 ) -> Any:
     """Implements the figure update logic for the optimization function visualization.
 
@@ -58,7 +59,7 @@ def update_figures_impl(
 
     # Calculate Z range and create contour lines
     z_min, z_max = np.min(Z), np.max(Z)
-    contour_lines = np.linspace(z_min, z_max, 10)
+    contour_lines = np.linspace(z_min, z_max, num_contours)
 
     # Create 3D surface plot
     fig_3d_view = go.Figure(
@@ -74,7 +75,7 @@ def update_figures_impl(
                         show=True,
                         start=z_min,
                         end=z_max,
-                        size=(z_max - z_min) / 10,
+                        size=(z_max - z_min) / num_contours,
                         color="black",
                         width=2,
                     )
@@ -150,10 +151,14 @@ def register_all_callbacks(
         [
             Input("function-dropdown", "value"),
             Input("epic-all-or-single-object-view", "value"),
+            Input("num-contours-input", "value"),
         ],
     )
     def update_figures(
         function_dropdown_value: str,
         epic_all_or_single_object_view: str,
+        num_contours: int,
     ):
-        return update_figures_impl(function_dropdown_value, epic_all_or_single_object_view)
+        return update_figures_impl(
+            function_dropdown_value, epic_all_or_single_object_view, num_contours
+        )
