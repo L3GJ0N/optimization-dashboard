@@ -8,11 +8,15 @@ import dash
 import dash_bootstrap_components as dbc
 
 from layout import create_layout
+from callbacks import register_all_callbacks
+
 
 def setup() -> dash.Dash:
     app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
     app.title = "Gradient Descent Analysis"
     app.layout = create_layout()
+    # app.config.suppress_callback_exceptions = True
+    register_all_callbacks(app)
 
     return app
 
