@@ -8,6 +8,8 @@ import plotly.graph_objects as go
 import numpy as np
 from typing import Any, Dict, List, Tuple
 
+from skimage import measure  # You may need to install scikit-image
+
 from utils import get_function_instance
 from factory import FunctionFactory
 
@@ -68,11 +70,11 @@ def update_figures_impl(
 
     # Calculate Z range and create contour lines
     z_min, z_max = np.min(Z), np.max(Z)
-    contour_lines = np.linspace(z_min, z_max, num_contours)
 
     # Calculate z-value of start point
     start_z = function.implementation(start_point[0], start_point[1])
-    start_z_array = np.full_like(Z.flatten(), start_z)
+
+    print("Start point z-value:", start_z)
 
     # Create 3D surface plot
     fig_3d_view = go.Figure(
@@ -89,40 +91,73 @@ def update_figures_impl(
                         start=z_min,
                         end=z_max,
                         size=(z_max - z_min) / num_contours,
+                        project=dict(z=True),  # Project onto surface
                         color="black",
                         width=2,
                         usecolormap=False,
                     ),
-                    x=dict(show=False),  # Disable x contours
-                    y=dict(show=False),  # Disable y contours
+                    x=dict(show=False),
+                    y=dict(show=False),
                 ),
                 showlegend=False,
             ),
-            # Add the single contour line at start point z-value
-            go.Isosurface(
-                x=X.flatten(),
-                y=Y.flatten(),
-                z=Z.flatten(),
-                value=start_z_array,
-                isomin=start_z,
-                isomax=start_z,
-                showscale=False,
-                opacity=0.7,
-                surface_count=1,
-                colorscale=[[0, "red"], [1, "red"]],  # Force red color
-                showlegend=True,
-            ),
+            # # Add contour at start point z-level
+            # go.Surface(
+            #     x=X,
+            #     y=Y,
+            #     z=Z,
+            #     opacity=0,  # Make surface invisible
+            #     contours=dict(
+            #         z=dict(
+            #             show=True,
+            #             start=start_z,  # Single contour at start z
+            #             end=start_z,
+            #             size=1,
+            #             project=dict(z=True),  # Project onto surface
+            #             color="red",
+            #             width=5,
+            #             usecolormap=False,
+            #         ),
+            #         x=dict(show=False),
+            #         y=dict(show=False),
+            #     ),
+            #     showscale=False,
+            #     showlegend=True,
+            #     name=f"Level z={start_z:.2f}",
+            # ),
+            # Add start point
             go.Scatter3d(
                 x=[start_point[0]],
                 y=[start_point[1]],
                 z=[start_z],
                 mode="markers",
                 marker=dict(size=10, color="red", symbol="circle"),
-                name="Start Point",
+                name="Start",
                 showlegend=True,
             ),
         ]
     )
+
+    # Extract contours and add as Scatter3d lines
+    # Find contours at a constant value: note that find_contours expects an image, so we use Z
+    contours = measure.find_contours(Z, level=start_z)
+    for contour in contours:
+        # Map contour indices to x and y coordinates
+        x_contour = np.interp(contour[:, 1], [0, Z.shape[1] - 1], [x[0], x[-1]])
+        y_contour = np.interp(contour[:, 0], [0, Z.shape[0] - 1], [y[0], y[-1]])
+        z_contour = np.full_like(x_contour, start_z)
+
+        fig_3d_view.add_trace(
+            go.Scatter3d(
+                x=x_contour,
+                y=y_contour,
+                z=z_contour,
+                mode="lines",
+                line=dict(width=4, color="red"),
+                name="Contour",
+                showlegend=False,
+            )
+        )
 
     # Update 3D layout
     fig_3d_view.update_layout(
