@@ -102,6 +102,33 @@ def update_figures_impl(
     # Initialize other views (to be implemented)
     header_top_view = "Top View"
     fig_top_view = go.Figure()
+
+    # Create 2D contour view
+    fig_top_view = go.Figure(
+        data=[
+            go.Contour(
+                x=x,
+                y=y,
+                z=Z,
+                colorscale="viridis",
+                colorbar=dict(title="Value"),
+                contours=dict(
+                    start=z_min,
+                    end=z_max,
+                    size=(z_max - z_min) / num_contours,
+                ),
+                line=dict(color="black", width=2),
+            )
+        ]
+    )
+
+    # Update 2D layout
+    fig_top_view.update_layout(
+        xaxis_title="X",
+        yaxis_title="Y",
+        margin=dict(l=0, r=0, t=30, b=0),
+    )
+
     header_2d_view = "2D View"
     fig_2d_view = go.Figure()
     header_result_view = "Result View"

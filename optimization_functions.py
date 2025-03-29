@@ -31,8 +31,8 @@ class ExampleFunctions(ABC):
 
 class Rosebrock(ExampleFunctions):
     def __init__(self):
-        self._x_range = (-5.0, 5.0)  # default x range
-        self._y_range = (-5.0, 5.0)  # default y range
+        self._x_range = (-1.5, 1.5)  # default x range
+        self._y_range = (-1.5, 1.5)  # default y range
 
     def implementation(self, x: float, y: float) -> float:
         return (1 - x) ** 2 + 100 * (y - x**2) ** 2  # Rosenbrock function
@@ -66,14 +66,14 @@ class GaussianVariation(ExampleFunctions):
         self._y_range = (-2.0, 2.0)  # default y range
 
     def implementation(self, x: float, y: float) -> float:
-        return (x + math.sin(y)) * math.exp(-x**2 - y**2)
+        return (x + math.sin(y)) * math.exp(-(x**2) - y**2)
 
     def gradient(self, x: float, y: float) -> Tuple[float, float]:
-        exp_term = math.exp(-x**2 - y**2)
+        exp_term = math.exp(-(x**2) - y**2)
         # dx = (1 - 2x(x + sin(y)))exp(-x² - y²)
-        dx = (1 - 2*x*(x + math.sin(y))) * exp_term
+        dx = (1 - 2 * x * (x + math.sin(y))) * exp_term
         # dy = (cos(y) - 2y(x + sin(y)))exp(-x² - y²)
-        dy = (math.cos(y) - 2*y*(x + math.sin(y))) * exp_term
+        dy = (math.cos(y) - 2 * y * (x + math.sin(y))) * exp_term
         return (dx, dy)
 
     @property
