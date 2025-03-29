@@ -6,8 +6,8 @@ class FunctionFactory:
     """Factory class for creating ExampleFunctions instances."""
 
     _creators: Dict[str, Type[ExampleFunctions]] = {
-        "Rosebrock": Rosebrock,
         "GaussianVariation": GaussianVariation,
+        "Rosebrock": Rosebrock,
         # Add more functions here as they are implemented
     }
 

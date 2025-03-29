@@ -187,7 +187,7 @@ def update_figures_impl(
         mode="lines",
         line=dict(color="red", width=3),
         marker=dict(size=5, color="red"),
-        name=r"$- \alpha \grad f$",  # LaTeX formula
+        name="- grad f",  # LaTeX formula
         text="- Gradient Direction",
     )
 
@@ -212,7 +212,7 @@ def update_figures_impl(
                 y=y,
                 z=Z,
                 colorscale="viridis",
-                colorbar=dict(title="Value"),
+                colorbar=dict(title="f(x,y)"),
                 contours=dict(
                     start=z_min,
                     end=z_max,
@@ -251,7 +251,7 @@ def update_figures_impl(
         [dy0],
         scale=1.0,
         arrow_scale=0.1,
-        name="Gradient Direction",
+        name="- Gradient",
         line=dict(width=2, color="red"),
         hoverinfo="text+name",
         showlegend=False,
@@ -267,13 +267,26 @@ def update_figures_impl(
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
-    header_2d_view = "2D View - Function values along negative gradient direction"
+    header_2d_view = "Function values along negative gradient direction"
     # Create line plot along gradient direction
     num_points = 100
     t = np.linspace(0, 1, num_points)
     line_x = start_point[0] + t * (intersection_point[0] - start_point[0])
     line_y = start_point[1] + t * (intersection_point[1] - start_point[1])
     line_z = np.array([function.implementation(x, y) for x, y in zip(line_x, line_y)])
+
+    # Add gradient direction curve to 3D view
+    fig_3d_view.add_trace(
+        go.Scatter3d(
+            x=line_x,
+            y=line_y,
+            z=line_z,
+            mode="lines",
+            line=dict(color="red", width=4),
+            name="Path along gradient",
+            showlegend=False,
+        )
+    )
 
     # Create 2D line plot
     fig_2d_view = go.Figure(
