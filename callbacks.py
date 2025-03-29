@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Tuple
 
 from skimage import measure  # You may need to install scikit-image
 
-from utils import get_function_instance
+from utils import get_function_instance, find_grid_intersection
 from factory import FunctionFactory
 
 
@@ -194,6 +194,12 @@ def update_figures_impl(
     # Add the gradient arrow trace
     fig_3d_view.add_trace(arrow_trace)
 
+    # Calculate intersection point with grid boundary
+    gradient_direction = (gradient_scale * gradient[0], gradient_scale * gradient[1])
+    intersection_point = find_grid_intersection(
+        start_point, gradient_direction, (x_min, x_max), (y_min, y_max)
+    )
+
     # Initialize other views (to be implemented)
     header_top_view = "Top View"
     fig_top_view = go.Figure()
@@ -253,7 +259,6 @@ def update_figures_impl(
     fig_top_view.add_trace(gradient_quiver_top_view.data[0])
 
     # Update 2D layout
-
     fig_top_view.update_layout(
         xaxis_title="X",
         yaxis_title="Y",
@@ -262,8 +267,42 @@ def update_figures_impl(
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
-    header_2d_view = "2D View"
-    fig_2d_view = go.Figure()
+    header_2d_view = "2D View - Function values along negative gradient direction"
+    # Create line plot along gradient direction
+    num_points = 100
+    t = np.linspace(0, 1, num_points)
+    line_x = start_point[0] + t * (intersection_point[0] - start_point[0])
+    line_y = start_point[1] + t * (intersection_point[1] - start_point[1])
+    line_z = np.array([function.implementation(x, y) for x, y in zip(line_x, line_y)])
+
+    # Create 2D line plot
+    fig_2d_view = go.Figure(
+        data=[
+            go.Scatter(
+                x=np.sqrt(
+                    (line_x - start_point[0]) ** 2 + (line_y - start_point[1]) ** 2
+                ),  # Distance from start
+                y=line_z,
+                mode="lines",
+                name="Function along gradient",
+                line=dict(color="blue", width=2),
+            ),
+            go.Scatter(
+                x=[0],  # Start point at distance 0
+                y=[start_z],
+                mode="markers",
+                marker=dict(color="red", size=10),
+                name="Start point",
+            ),
+        ],
+        layout=dict(
+            xaxis_title="Distance from start point",
+            yaxis_title="Function value",
+            showlegend=True,
+            margin=dict(l=0, r=0, t=30, b=0),
+        ),
+    )
+
     header_result_view = "Result View"
     fig_result_view = go.Figure()
 
