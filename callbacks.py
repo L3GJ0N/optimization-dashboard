@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output, State
 from pathlib import Path
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
 import numpy as np
 from typing import Any, Dict, List, Tuple
 
@@ -163,6 +164,36 @@ def update_figures_impl(
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
+    # Calculate gradient at start point
+    gradient = function.gradient(start_point[0], start_point[1])
+    gradient_scale = -1.0 / np.linalg.norm(
+        gradient
+    )  # Scale factor for gradient vector visualization
+    end_point = (
+        start_point[0] + gradient_scale * gradient[0],
+        start_point[1] + gradient_scale * gradient[1],
+    )
+    end_z = z_min
+
+    # Create a scatter trace that draws the arrow as a line in the xy-plane at z=plane_z
+    x0 = start_point[0]
+    y0 = start_point[1]
+    dx0 = end_point[0] - x0
+    dy0 = end_point[1] - y0
+    arrow_trace = go.Scatter3d(
+        x=[x0, end_point[0]],
+        y=[y0, end_point[1]],
+        z=[end_z, end_z],
+        mode="lines",
+        line=dict(color="red", width=3),
+        marker=dict(size=5, color="red"),
+        name=r"$- \alpha \grad f$",  # LaTeX formula
+        text="- Gradient Direction",
+    )
+
+    # Add the gradient arrow trace
+    fig_3d_view.add_trace(arrow_trace)
+
     # Initialize other views (to be implemented)
     header_top_view = "Top View"
     fig_top_view = go.Figure()
@@ -206,10 +237,28 @@ def update_figures_impl(
         ]
     )
 
+    # add gradient arrow to top view
+    gradient_quiver_top_view = ff.create_quiver(
+        [x0],
+        [y0],
+        [dx0],
+        [dy0],
+        scale=1.0,
+        arrow_scale=0.1,
+        name="Gradient Direction",
+        line=dict(width=2, color="red"),
+        hoverinfo="text+name",
+        showlegend=False,
+    )
+    fig_top_view.add_trace(gradient_quiver_top_view.data[0])
+
     # Update 2D layout
+
     fig_top_view.update_layout(
         xaxis_title="X",
         yaxis_title="Y",
+        yaxis=dict(scaleanchor="x", scaleratio=1),
+        xaxis=dict(scaleanchor="y", scaleratio=1),
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
