@@ -38,6 +38,15 @@ def create_interactive_board() -> List[dbc.Col]:
         ),
         dbc.Col(
             dcc.Dropdown(
+                id="start-point-dropdown",
+                options=[],  # Will be populated by callback
+                value=None,
+                placeholder="Select start point",
+            ),
+            width=2,
+        ),
+        dbc.Col(
+            dcc.Dropdown(
                 id="epic-all-or-single-object-view",
                 options=[
                     {"label": "Show all", "value": "all"},

@@ -1,10 +1,42 @@
 from abc import ABC, abstractmethod
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 import math
 
 
 class ExampleFunctions(ABC):
     """Abstract base class defining interface for implementations and derivatives."""
+
+    def __init__(self):
+        self._path: List[Tuple[float, float]] = []
+
+    @property
+    def path(self) -> List[Tuple[float, float]]:
+        """Get the current optimization path."""
+        return self._path
+
+    @path.setter
+    def path(self, value: List[Tuple[float, float]]) -> None:
+        """Update the optimization path.
+
+        Args:
+            value: List of (x, y) coordinate tuples
+        """
+        if not isinstance(value, list):
+            raise TypeError("Path must be a list")
+        for point in value:
+            if not (
+                isinstance(point, tuple)
+                and len(point) == 2
+                and all(isinstance(x, (int, float)) for x in point)
+            ):
+                raise ValueError("Path must contain tuples of 2 float values")
+        self._path = value
+
+    @property
+    @abstractmethod
+    def start_points(self) -> List[Tuple[float, float]]:
+        """Abstract property that returns the initial points for optimization."""
+        pass
 
     @abstractmethod
     def implementation(self, x: float, y: float) -> float:
@@ -31,8 +63,18 @@ class ExampleFunctions(ABC):
 
 class Rosebrock(ExampleFunctions):
     def __init__(self):
+        super().__init__()
         self._x_range = (-1.5, 1.5)  # default x range
         self._y_range = (-1.5, 1.5)  # default y range
+        self._start_points = [
+            (-1.0, -1.0),
+            (0.0, 0.0),
+            (1.0, 1.0),
+        ]  # default start points
+
+    @property
+    def start_points(self) -> List[Tuple[float, float]]:
+        return self._start_points
 
     def implementation(self, x: float, y: float) -> float:
         return (1 - x) ** 2 + 100 * (y - x**2) ** 2  # Rosenbrock function
@@ -62,8 +104,18 @@ class Rosebrock(ExampleFunctions):
 
 class GaussianVariation(ExampleFunctions):
     def __init__(self):
+        super().__init__()
         self._x_range = (-2.0, 2.0)  # default x range
         self._y_range = (-2.0, 2.0)  # default y range
+        self._start_points = [
+            (-1.0, 0.0),
+            (0.0, 0.0),
+            (1.0, 0.0),
+        ]  # default start points
+
+    @property
+    def start_points(self) -> List[Tuple[float, float]]:
+        return self._start_points
 
     def implementation(self, x: float, y: float) -> float:
         return (x + math.sin(y)) * math.exp(-(x**2) - y**2)

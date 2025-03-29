@@ -9,6 +9,7 @@ import numpy as np
 from typing import Any, Dict, List, Tuple
 
 from utils import get_function_instance
+from factory import FunctionFactory
 
 
 def update_figures_impl(
@@ -189,3 +190,20 @@ def register_all_callbacks(
         return update_figures_impl(
             function_dropdown_value, epic_all_or_single_object_view, num_contours
         )
+
+    @app.callback(
+        Output("start-point-dropdown", "options"),
+        Output("start-point-dropdown", "value"),
+        Input("function-dropdown", "value"),
+    )
+    def update_start_points(function_name: str):
+        """Update start point dropdown options based on selected function."""
+        if not function_name:
+            return [], None
+
+        start_points = FunctionFactory.get_start_points(function_name)[function_name]
+        options = [
+            {"label": f"({x:.2f}, {y:.2f})", "value": i} for i, (x, y) in enumerate(start_points)
+        ]
+
+        return options, 0  # Select first point by default

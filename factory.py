@@ -1,4 +1,4 @@
-from typing import Dict, Type
+from typing import Dict, List, Tuple, Type
 from optimization_functions import ExampleFunctions, Rosebrock, GaussianVariation
 
 
@@ -43,6 +43,40 @@ class FunctionFactory:
     def available_functions(cls) -> list[str]:
         """Returns list of all registered function names."""
         return list(cls._creators.keys())
+
+    @classmethod
+    def get_start_points(cls, function_name: str = None) -> Dict[str, List[Tuple[float, float]]]:
+        """Get start points for specified function or all registered functions.
+
+        Args:
+            function_name: Optional name of specific function
+
+        Returns:
+            Dictionary mapping function names to their start points
+
+        Raises:
+            ValueError: If specified function_name is not registered
+        """
+        if function_name:
+            if function_name not in cls._creators:
+                raise ValueError(f"Unknown function: {function_name}")
+            instance = cls.create(function_name)
+            return {function_name: instance.start_points}
+
+        return {name: cls.create(name).start_points for name in cls._creators.keys()}
+
+    @classmethod
+    def print_start_points(cls, function_name: str = None) -> None:
+        """Print start points for specified function or all registered functions.
+
+        Args:
+            function_name: Optional name of specific function
+        """
+        start_points = cls.get_start_points(function_name)
+        for fname, points in start_points.items():
+            print(f"{fname} start points:")
+            for i, point in enumerate(points, 1):
+                print(f"  {i}. ({point[0]:.2f}, {point[1]:.2f})")
 
 
 # Example usage
