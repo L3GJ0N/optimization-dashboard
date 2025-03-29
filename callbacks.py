@@ -70,6 +70,9 @@ def update_figures_impl(
     z_min, z_max = np.min(Z), np.max(Z)
     contour_lines = np.linspace(z_min, z_max, num_contours)
 
+    # Calculate z-value of start point
+    start_z = function.implementation(start_point[0], start_point[1])
+
     # Create 3D surface plot
     fig_3d_view = go.Figure(
         data=[
@@ -78,7 +81,7 @@ def update_figures_impl(
                 y=Y,
                 z=Z,
                 colorscale="viridis",
-                colorbar=dict(title="Value"),
+                showscale=False,  # Hide colorbar
                 contours=dict(
                     z=dict(
                         show=True,
@@ -87,9 +90,42 @@ def update_figures_impl(
                         size=(z_max - z_min) / num_contours,
                         color="black",
                         width=2,
+                        # Add specific contour at start point z-value
+                        usecolormap=False,  # Don't use colormap for contours
+                        # project=dict(z=True)  # Project contours onto z-plane
                     )
                 ),
-            )
+                showlegend=False,
+            ),
+            # Add separate surface trace for start point contour
+            go.Surface(
+                x=X,
+                y=Y,
+                z=Z,
+                showscale=False,
+                opacity=0,  # Make surface invisible
+                contours=dict(
+                    z=dict(
+                        show=True,
+                        start=start_z,  # Single contour at start point z-value
+                        end=start_z,
+                        color="red",
+                        width=3,
+                        usecolormap=False,
+                        # project=dict(z=True)
+                    )
+                ),
+                showlegend=False,
+            ),
+            go.Scatter3d(
+                x=[start_point[0]],
+                y=[start_point[1]],
+                z=[start_z],
+                mode="markers",
+                marker=dict(size=10, color="red", symbol="circle"),
+                name="Start Point",
+                showlegend=True,
+            ),
         ]
     )
 
@@ -125,9 +161,29 @@ def update_figures_impl(
                     start=z_min,
                     end=z_max,
                     size=(z_max - z_min) / num_contours,
+                    # Add specific contour level
+                    value=start_z,
                 ),
                 line=dict(color="black", width=2),
-            )
+            ),
+            # Add highlighted contour at start point z-value
+            go.Contour(
+                x=x,
+                y=y,
+                z=Z,
+                contours=dict(start=start_z, end=start_z, coloring="none"),
+                line=dict(color="red", width=3),
+                showscale=False,
+                showlegend=False,
+            ),
+            go.Scatter(
+                x=[start_point[0]],
+                y=[start_point[1]],
+                mode="markers",
+                marker=dict(size=10, color="red", symbol="circle"),
+                name="Start Point",
+                showlegend=False,
+            ),
         ]
     )
 
