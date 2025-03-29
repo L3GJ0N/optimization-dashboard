@@ -72,6 +72,7 @@ def update_figures_impl(
 
     # Calculate z-value of start point
     start_z = function.implementation(start_point[0], start_point[1])
+    start_z_array = np.full_like(Z.flatten(), start_z)
 
     # Create 3D surface plot
     fig_3d_view = go.Figure(
@@ -90,32 +91,26 @@ def update_figures_impl(
                         size=(z_max - z_min) / num_contours,
                         color="black",
                         width=2,
-                        # Add specific contour at start point z-value
-                        usecolormap=False,  # Don't use colormap for contours
-                        # project=dict(z=True)  # Project contours onto z-plane
-                    )
+                        usecolormap=False,
+                    ),
+                    x=dict(show=False),  # Disable x contours
+                    y=dict(show=False),  # Disable y contours
                 ),
                 showlegend=False,
             ),
-            # Add separate surface trace for start point contour
-            go.Surface(
-                x=X,
-                y=Y,
-                z=Z,
+            # Add the single contour line at start point z-value
+            go.Isosurface(
+                x=X.flatten(),
+                y=Y.flatten(),
+                z=Z.flatten(),
+                value=start_z_array,
+                isomin=start_z,
+                isomax=start_z,
                 showscale=False,
-                opacity=0,  # Make surface invisible
-                contours=dict(
-                    z=dict(
-                        show=True,
-                        start=start_z,  # Single contour at start point z-value
-                        end=start_z,
-                        color="red",
-                        width=3,
-                        usecolormap=False,
-                        # project=dict(z=True)
-                    )
-                ),
-                showlegend=False,
+                opacity=0.7,
+                surface_count=1,
+                colorscale=[[0, "red"], [1, "red"]],  # Force red color
+                showlegend=True,
             ),
             go.Scatter3d(
                 x=[start_point[0]],
