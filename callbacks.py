@@ -47,8 +47,6 @@ def update_figures_impl(
     start_point = function.start_points[selected_start_point_idx]
 
     print("Updating figures with function:", function_dropdown_value)
-    print("View mode:", epic_all_or_single_object_view)
-    print("Selected start point:", start_point)
     header_3d_view = f"3D View - {function_dropdown_value}"
 
     # Get function instance based on dropdown selection
@@ -73,8 +71,6 @@ def update_figures_impl(
 
     # Calculate z-value of start point
     start_z = function.implementation(start_point[0], start_point[1])
-
-    print("Start point z-value:", start_z)
 
     # Create 3D surface plot
     fig_3d_view = go.Figure(
@@ -101,30 +97,6 @@ def update_figures_impl(
                 ),
                 showlegend=False,
             ),
-            # # Add contour at start point z-level
-            # go.Surface(
-            #     x=X,
-            #     y=Y,
-            #     z=Z,
-            #     opacity=0,  # Make surface invisible
-            #     contours=dict(
-            #         z=dict(
-            #             show=True,
-            #             start=start_z,  # Single contour at start z
-            #             end=start_z,
-            #             size=1,
-            #             project=dict(z=True),  # Project onto surface
-            #             color="red",
-            #             width=5,
-            #             usecolormap=False,
-            #         ),
-            #         x=dict(show=False),
-            #         y=dict(show=False),
-            #     ),
-            #     showscale=False,
-            #     showlegend=True,
-            #     name=f"Level z={start_z:.2f}",
-            # ),
             # Add start point
             go.Scatter3d(
                 x=[start_point[0]],
@@ -139,7 +111,6 @@ def update_figures_impl(
     )
 
     # Extract contours and add as Scatter3d lines
-    # Find contours at a constant value: note that find_contours expects an image, so we use Z
     contours = measure.find_contours(Z, level=start_z)
     for contour in contours:
         # Map contour indices to x and y coordinates
@@ -147,6 +118,7 @@ def update_figures_impl(
         y_contour = np.interp(contour[:, 0], [0, Z.shape[0] - 1], [y[0], y[-1]])
         z_contour = np.full_like(x_contour, start_z)
 
+        # Add 3D contour line
         fig_3d_view.add_trace(
             go.Scatter3d(
                 x=x_contour,
@@ -155,6 +127,23 @@ def update_figures_impl(
                 mode="lines",
                 line=dict(width=4, color="red"),
                 name="Contour",
+                showlegend=False,
+            )
+        )
+
+        # Add projection to xy-plane
+        fig_3d_view.add_trace(
+            go.Scatter3d(
+                x=x_contour,
+                y=y_contour,
+                z=np.full_like(z_contour, z_min),  # Project to bottom
+                mode="lines",
+                line=dict(
+                    width=2,
+                    color="red",
+                ),
+                opacity=0.5,  # Make projection semi-transparent
+                name="Projection",
                 showlegend=False,
             )
         )
