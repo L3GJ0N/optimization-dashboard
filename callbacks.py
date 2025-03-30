@@ -43,7 +43,6 @@ def update_figures_impl(
             - fig_3d_view (go.Figure): 3D surface plot of the function
             - header_top_view (str): Title for top view
             - fig_top_view (go.Figure): Contour plot from top
-            - header_2d_view (str): Title for 2D view
             - fig_2d_view (go.Figure): Side view visualization
             - header_result_view (str): Title for result view
             - fig_result_view (go.Figure): Results visualization
@@ -276,7 +275,6 @@ def update_figures_impl(
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
-    header_2d_view = "view-2d-header"
     print("slider_value", slider_value)
     # Create line plot along gradient direction
     num_points = 100
@@ -284,6 +282,14 @@ def update_figures_impl(
     line_x = start_point[0] + t * (intersection_point[0] - start_point[0])
     line_y = start_point[1] + t * (intersection_point[1] - start_point[1])
     line_z = np.array([function.implementation(x, y) for x, y in zip(line_x, line_y)])
+
+    # Calculate new point position based on slider value
+    step_size = slider_value / 100.0
+    new_point = (
+        start_point[0] + step_size * gradient_direction[0],
+        start_point[1] + step_size * gradient_direction[1],
+    )
+    new_point_z = function.implementation(new_point[0], new_point[1])
 
     # Add gradient direction curve to 3D view
     fig_3d_view.add_trace(
@@ -296,6 +302,51 @@ def update_figures_impl(
             name="Path along gradient",
             showlegend=False,
         )
+    )
+
+    # Define consistent styling for step point
+    step_point_color = "rgb(0, 255, 255)"  # Cyan/bright blue
+    step_point_border_color = "rgb(0, 191, 255)"  # Slightly darker blue
+    step_point_size = 10
+    step_point_name = "Step point"
+
+    # Add step point to 3D view
+    fig_3d_view.add_trace(
+        go.Scatter3d(
+            x=[new_point[0]],
+            y=[new_point[1]],
+            z=[new_point_z],
+            mode="markers",
+            marker=dict(
+                color=step_point_color,
+                size=step_point_size,
+                line=dict(color=step_point_border_color, width=2),
+            ),
+            name=step_point_name,
+            showlegend=True,
+        )
+    )
+
+    # Add step point to top view
+    fig_top_view.add_trace(
+        go.Scatter(
+            x=[new_point[0]],
+            y=[new_point[1]],
+            mode="markers",
+            marker=dict(
+                color=step_point_color,
+                size=step_point_size,
+                line=dict(color=step_point_border_color, width=2),
+            ),
+            name=step_point_name,
+            showlegend=False,  # Hide legend in top view
+        )
+    )
+
+    # Create 2D line plot showing function values along gradient direction
+    # Calculate distance of new point from start point
+    new_point_distance = np.sqrt(
+        (new_point[0] - start_point[0]) ** 2 + (new_point[1] - start_point[1]) ** 2
     )
 
     # Create 2D line plot showing function values along gradient direction
@@ -315,6 +366,19 @@ def update_figures_impl(
                 mode="markers",
                 marker=dict(color="red", size=10),
                 name="Start point",
+            ),
+            # Add new point based on slider
+            go.Scatter(
+                x=[new_point_distance],
+                y=[new_point_z],
+                mode="markers",
+                marker=dict(
+                    color=step_point_color,
+                    size=step_point_size,
+                    line=dict(color=step_point_border_color, width=2),
+                ),
+                name=step_point_name,
+                showlegend=True,
             ),
         ],
         layout=dict(
@@ -336,7 +400,7 @@ def update_figures_impl(
         name="- Gradient",
         line=dict(width=2, color="red"),
         hoverinfo="text+name",
-        showlegend=True,
+        showlegend=False,
     )
     fig_2d_view.add_trace(gradient_quiver.data[0])
 
