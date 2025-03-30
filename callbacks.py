@@ -157,7 +157,7 @@ def update_figures_impl(
             )
         )
 
-    # Update 3D layout
+    # Update 3D layout with rotated camera
     fig_3d_view.update_layout(
         scene=dict(
             xaxis_title="X",
@@ -166,7 +166,7 @@ def update_figures_impl(
             camera=dict(
                 up=dict(x=0, y=0, z=1),
                 center=dict(x=0, y=0, z=0),
-                eye=dict(x=1.5, y=1.5, z=1.5),
+                eye=dict(x=-1.5, y=-1.5, z=1.5),  # Changed from (1.5, 1.5, 1.5)
             ),
         ),
         margin=dict(l=0, r=0, t=30, b=0),
