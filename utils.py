@@ -64,4 +64,4 @@ def find_grid_intersection(
 step_point_color = "rgb(0, 255, 255)"  # Cyan/bright blue
 step_point_border_color = "rgb(0, 191, 255)"  # Slightly darker blue
 step_point_size = 10
-step_point_name = "Step"
+step_point_name = "Next"

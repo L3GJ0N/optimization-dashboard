@@ -1,6 +1,8 @@
 from collections import OrderedDict
 import dash
 from dash import html, dash_table
+from dash._callback import NoUpdate
+from dash._callback_context import CallbackContext
 from dash.dependencies import Input, Output, State
 from pathlib import Path
 import pandas as pd
@@ -11,6 +13,7 @@ from typing import Any, Dict, List, Tuple
 
 from skimage import measure  # You may need to install scikit-image
 
+from optimization_functions import ExampleFunctions
 from utils import (
     get_function_instance,
     find_grid_intersection,
@@ -25,9 +28,9 @@ from factory import FunctionFactory
 class OptimizationState:
     """Holds all data needed for visualization of optimization state."""
 
-    def __init__(self, function, start_point, grid, num_contours, slider_value):
+    def __init__(self, function, current_point, grid, num_contours, slider_value) -> None:
         self.function = function
-        self.current_point = start_point
+        self.current_point = current_point
         self.grid = grid
         self.num_contours = num_contours
         self.step_size = slider_value / 100.0
@@ -42,10 +45,10 @@ class OptimizationState:
         # Calculate function values
         self.Z = self._calculate_function_values()
         self.z_min, self.z_max = np.min(self.Z), np.max(self.Z)
-        self.current_z = function.implementation(start_point[0], start_point[1])
+        self.current_z = function.implementation(current_point[0], current_point[1])
 
-        # Calculate gradient and path information
-        self.gradient = function.gradient(start_point[0], start_point[1])
+        # Calculate gradient information
+        self.gradient = function.gradient(current_point[0], current_point[1])
         self.normalized_gradient = self._calculate_normalized_gradient()
         self.gradient_scale = -1.0 / np.linalg.norm(self.gradient)
         self.descent_direction = self._calculate_descent_direction()
@@ -70,7 +73,7 @@ class OptimizationState:
             self.gradient_scale * self.gradient[0],
             self.gradient_scale * self.gradient[1],
         )
-        intersection = find_grid_intersection(
+        intersection: Tuple[float] = find_grid_intersection(
             self.current_point,
             direction,
             (self.x_min, self.x_max),
@@ -88,8 +91,15 @@ class OptimizationState:
         )
 
 
-def create_3d_view(state: OptimizationState) -> go.Figure:
-    """Creates 3D surface plot with contours, points and gradient visualization."""
+def create_3d_view(
+    state: OptimizationState, state_history: List[OptimizationState] = None
+) -> go.Figure:
+    """Creates 3D surface plot with contours, points and gradient visualization.
+
+    Args:
+        state: Current optimization state
+        state_history: Optional list of previous optimization states
+    """
     # Create base surface plot
     fig = go.Figure(
         data=[
@@ -117,6 +127,36 @@ def create_3d_view(state: OptimizationState) -> go.Figure:
             )
         ]
     )
+
+    # Add path points and connections from history
+    if state_history:
+        for i, prev_state in enumerate(state_history[:-1]):  # All but current state
+            next_state = state_history[i + 1]
+
+            # Add point
+            fig.add_trace(
+                go.Scatter3d(
+                    x=[prev_state.current_point[0]],
+                    y=[prev_state.current_point[1]],
+                    z=[prev_state.current_z],
+                    mode="markers",
+                    marker=dict(color="gray", size=8),
+                    name=f"Step {i+1}",
+                    showlegend=True,
+                )
+            )
+
+            # Add line to next point
+            fig.add_trace(
+                go.Scatter3d(
+                    x=[prev_state.current_point[0], next_state.current_point[0]],
+                    y=[prev_state.current_point[1], next_state.current_point[1]],
+                    z=[prev_state.current_z, next_state.current_z],
+                    mode="lines",
+                    line=dict(color="gray", width=2),
+                    showlegend=False,
+                )
+            )
 
     # Add contour at current z-level and its projection
     contours = measure.find_contours(state.Z, level=state.current_z)
@@ -218,7 +258,9 @@ def create_3d_view(state: OptimizationState) -> go.Figure:
     return fig
 
 
-def create_top_view(state: OptimizationState) -> go.Figure:
+def create_top_view(
+    state: OptimizationState, state_history: List[OptimizationState] = None
+) -> go.Figure:
     """Creates top view contour plot with current point and gradient."""
     fig = go.Figure(
         data=[
@@ -249,6 +291,39 @@ def create_top_view(state: OptimizationState) -> go.Figure:
         ]
     )
 
+    # Add path points and connections from history
+    if len(state_history) > 1:
+        # Extract path coordinates
+        path_x = [s.current_point[0] for s in state_history]
+        path_y = [s.current_point[1] for s in state_history]
+
+        # Add path line and points
+        fig.add_trace(
+            go.Scatter(
+                x=path_x,
+                y=path_y,
+                mode="lines+markers",
+                line=dict(color="gray", width=2),
+                marker=dict(
+                    color="gray",
+                    size=8,
+                    symbol="circle",
+                ),
+                name="Optimization path",
+                showlegend=False,
+            )
+        )
+
+        # Add step labels
+        for i, prev_state in enumerate(state_history[:-1]):
+            fig.add_annotation(
+                x=prev_state.current_point[0],
+                y=prev_state.current_point[1],
+                text=f"{i+1}",
+                showarrow=False,
+                font=dict(size=10, color="white"),
+            )
+
     # Add current point
     fig.add_trace(
         go.Scatter(
@@ -256,7 +331,7 @@ def create_top_view(state: OptimizationState) -> go.Figure:
             y=[state.current_point[1]],
             mode="markers",
             marker=dict(color="red", size=10),
-            name="Current point",
+            name="Current",
             showlegend=False,
         )
     )
@@ -319,7 +394,9 @@ def create_top_view(state: OptimizationState) -> go.Figure:
     return fig
 
 
-def create_2d_view(state: OptimizationState) -> go.Figure:
+def create_2d_view(
+    state: OptimizationState, state_history: List[OptimizationState] = None
+) -> go.Figure:
     """Creates 2D line plot showing function values along gradient direction."""
     # Calculate points along gradient direction
     t = np.linspace(0, 1, 100)
@@ -376,15 +453,60 @@ def create_2d_view(state: OptimizationState) -> go.Figure:
     return fig
 
 
-def create_visualization(state: OptimizationState):
+def create_2d_loss_view(
+    state: OptimizationState, state_history: List[OptimizationState] = None
+) -> go.Figure:
+    fig = go.Figure()
+    if state_history:
+        path_distances = [0]  # Start with 0
+        path_z_values = [state_history[0].current_z]
+
+        # Calculate cumulative distances and function values
+        for i in range(1, len(state_history)):
+            prev = state_history[i - 1].current_point
+            curr = state_history[i].current_point
+            dist = np.sqrt((curr[0] - prev[0]) ** 2 + (curr[1] - prev[1]) ** 2)
+            path_distances.append(i)
+            path_z_values.append(state_history[i].current_z)
+
+        # Add path trace
+        fig.add_trace(
+            go.Scatter(
+                x=path_distances,
+                y=path_z_values,
+                mode="lines+markers",
+                line=dict(color="gray", width=2),
+                marker=dict(
+                    color="gray",
+                    size=8,
+                    symbol="circle",
+                ),
+                name="Optimization path",
+            )
+        )
+
+    # Update layout
+    fig.update_layout(
+        xaxis_title="Step number",
+        yaxis_title="Function value at each step",
+        showlegend=True,
+        margin=dict(l=0, r=0, t=30, b=0),
+    )
+
+    return fig
+
+
+def create_visualization(
+    current_state: OptimizationState, state_history: List[OptimizationState]
+) -> Tuple[str | go.Figure]:
     """Creates all visualization figures based on optimization state."""
-    fig_3d_view = create_3d_view(state)
-    fig_top_view = create_top_view(state)
-    fig_2d_view = create_2d_view(state)
-    fig_result_view = go.Figure()  # Placeholder for now
+    fig_3d_view: go.Figure = create_3d_view(current_state, state_history)
+    fig_top_view: go.Figure = create_top_view(current_state, state_history)
+    fig_2d_view: go.Figure = create_2d_view(current_state, state_history)
+    fig_result_view: go.Figure = create_2d_loss_view(current_state, state_history)
 
     return (
-        f"3D View - {state.function.__class__.__name__}",
+        f"3D View - {current_state.function.__class__.__name__}",
         fig_3d_view,
         "Top View",
         fig_top_view,
@@ -401,24 +523,63 @@ def update_figures_impl(
     selected_start_point_idx: int,
     slider_value: int,
     n_clicks: int,
-    is_new_click: bool,
+    trigger_info: Dict[str, Any],
 ) -> Any:
     """Main callback implementation with separated data and visualization."""
-    # Get function instance and selected start point
-    function = get_function_instance(function_dropdown_value)
-    start_point = function.start_points[selected_start_point_idx]
+    function: ExampleFunctions = get_function_instance(function_dropdown_value)
+    start_point: Tuple[float] = function.start_points[selected_start_point_idx]
 
-    # Create state object containing all computed data
-    state = OptimizationState(
-        function=function,
-        start_point=start_point,
-        grid=function.grid,
-        num_contours=num_contours,
-        slider_value=slider_value,
-    )
+    # Initialize or reset state history
+    if not hasattr(function, "state_history"):
+        function.state_history = []
 
-    # Generate visualizations based on state
-    return create_visualization(state)
+    # Create initial state if history is empty
+    if not function.state_history:
+        initial_state = OptimizationState(
+            function=function,
+            current_point=start_point,
+            grid=function.grid,
+            num_contours=num_contours,
+            slider_value=slider_value,
+        )
+        function.state_history = [initial_state]
+
+    # Get current state
+    current_state = function.state_history[-1]
+
+    # Reset history if start point changed
+    if trigger_info["is_start_point_changed"] or trigger_info["is_function_changed"]:
+        initial_state = OptimizationState(
+            function=function,
+            current_point=start_point,
+            grid=function.grid,
+            num_contours=num_contours,
+            slider_value=slider_value,
+        )
+        function.state_history = [initial_state]
+        current_state = initial_state
+
+    # Update step size from slider
+    current_state.step_size = slider_value / 100.0
+    current_state.step_point = current_state._calculate_step_point()
+    current_state.num_contours = num_contours
+
+    # Add new state if button clicked
+    if trigger_info["is_new_click"] and n_clicks > 0:
+        print(f"Adding new state at step {len(function.state_history)}")
+        new_state = OptimizationState(
+            function=function,
+            current_point=current_state.step_point,
+            grid=function.grid,
+            num_contours=num_contours,
+            slider_value=slider_value,
+        )
+        function.state_history.append(new_state)
+        current_state: OptimizationState = new_state
+
+    # Create visualization using current state and history
+    print("len of history:", len(function.state_history))
+    return create_visualization(current_state, function.state_history)
 
 
 def register_all_callbacks(
@@ -465,12 +626,26 @@ def register_all_callbacks(
         selected_start_point_idx: int,
         slider_value: int,
         n_clicks: int,
-    ):
-        # Check if update was triggered by button click
-        ctx = dash.callback_context
-        is_new_click = False
-        if ctx.triggered and ctx.triggered[0]["prop_id"] == "add-point-button.n_clicks":
-            is_new_click = True
+    ) -> NoUpdate | Any:
+        # Get trigger information
+        ctx: CallbackContext = dash.callback_context
+        if not ctx.triggered:
+            return dash.no_update
+
+        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+        # Determine what triggered the update
+        trigger_info = {
+            "is_new_click": trigger_id == "add-point-button",
+            "is_function_changed": trigger_id == "function-dropdown",
+            "is_start_point_changed": trigger_id == "start-point-dropdown",
+            "is_slider_changed": trigger_id == "view-2d-slider",
+            "is_view_mode_changed": trigger_id == "epic-all-or-single-object-view",
+            "is_contours_changed": trigger_id == "num-contours-input",
+            "trigger_id": trigger_id,
+        }
+
+        print(f"Callback triggered by: {trigger_info['trigger_id']}")
 
         return update_figures_impl(
             function_dropdown_value,
@@ -479,7 +654,7 @@ def register_all_callbacks(
             selected_start_point_idx or 0,  # default to first point if None
             slider_value,
             n_clicks or 0,
-            is_new_click,
+            trigger_info,
         )
 
     @app.callback(
