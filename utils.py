@@ -58,3 +58,10 @@ def find_grid_intersection(
 
     # Calculate intersection point
     return (start[0] + t * direction[0], start[1] + t * direction[1])
+
+
+# Define consistent styling for step point
+step_point_color = "rgb(0, 255, 255)"  # Cyan/bright blue
+step_point_border_color = "rgb(0, 191, 255)"  # Slightly darker blue
+step_point_size = 10
+step_point_name = "Step point"

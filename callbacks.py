@@ -11,7 +11,14 @@ from typing import Any, Dict, List, Tuple
 
 from skimage import measure  # You may need to install scikit-image
 
-from utils import get_function_instance, find_grid_intersection
+from utils import (
+    get_function_instance,
+    find_grid_intersection,
+    step_point_color,
+    step_point_border_color,
+    step_point_size,
+    step_point_name,
+)
 from factory import FunctionFactory
 
 
@@ -106,17 +113,35 @@ def update_figures_impl(
                 ),
                 showlegend=False,
             ),
-            # Add start point
-            go.Scatter3d(
-                x=[start_point[0]],
-                y=[start_point[1]],
-                z=[start_z],
-                mode="markers",
-                marker=dict(size=10, color="red", symbol="circle"),
-                name="Start",
-                showlegend=True,
-            ),
         ]
+    )
+
+    # Update 3D layout with rotated camera
+    fig_3d_view.update_layout(
+        scene=dict(
+            xaxis_title="X",
+            yaxis_title="Y",
+            zaxis_title="Z",
+            camera=dict(
+                up=dict(x=0, y=0, z=1),
+                center=dict(x=0, y=0, z=0),
+                eye=dict(x=-1.5, y=-1.5, z=1.5),  # Changed from (1.5, 1.5, 1.5)
+            ),
+        ),
+        margin=dict(l=0, r=0, t=30, b=0),
+    )
+
+    # Add start point to 3D view
+    fig_3d_view.add_trace(
+        go.Scatter3d(
+            x=[start_point[0]],
+            y=[start_point[1]],
+            z=[start_z],
+            mode="markers",
+            marker=dict(size=10, color="red", symbol="circle"),
+            name="Start",
+            showlegend=True,
+        )
     )
 
     # Extract contours and add as Scatter3d lines
@@ -156,21 +181,6 @@ def update_figures_impl(
                 showlegend=False,
             )
         )
-
-    # Update 3D layout with rotated camera
-    fig_3d_view.update_layout(
-        scene=dict(
-            xaxis_title="X",
-            yaxis_title="Y",
-            zaxis_title="Z",
-            camera=dict(
-                up=dict(x=0, y=0, z=1),
-                center=dict(x=0, y=0, z=0),
-                eye=dict(x=-1.5, y=-1.5, z=1.5),  # Changed from (1.5, 1.5, 1.5)
-            ),
-        ),
-        margin=dict(l=0, r=0, t=30, b=0),
-    )
 
     # Calculate gradient at start point
     gradient = function.gradient(start_point[0], start_point[1])
@@ -279,7 +289,6 @@ def update_figures_impl(
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
-    print("slider_value", slider_value)
     # Create line plot along gradient direction
     num_points = 100
     t = np.linspace(0, 1, num_points)
@@ -307,12 +316,6 @@ def update_figures_impl(
             showlegend=False,
         )
     )
-
-    # Define consistent styling for step point
-    step_point_color = "rgb(0, 255, 255)"  # Cyan/bright blue
-    step_point_border_color = "rgb(0, 191, 255)"  # Slightly darker blue
-    step_point_size = 10
-    step_point_name = "Step point"
 
     # Add step point to 3D view
     fig_3d_view.add_trace(
