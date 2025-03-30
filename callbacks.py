@@ -207,6 +207,10 @@ def update_figures_impl(
     intersection_point = find_grid_intersection(
         start_point, gradient_direction, (x_min, x_max), (y_min, y_max)
     )
+    descent_direction = (
+        intersection_point[0] - start_point[0],
+        intersection_point[1] - start_point[1],
+    )
 
     # Initialize other views (to be implemented)
     header_top_view = "Top View"
@@ -286,8 +290,8 @@ def update_figures_impl(
     # Calculate new point position based on slider value
     step_size = slider_value / 100.0
     new_point = (
-        start_point[0] + step_size * gradient_direction[0],
-        start_point[1] + step_size * gradient_direction[1],
+        start_point[0] + step_size * descent_direction[0],
+        start_point[1] + step_size * descent_direction[1],
     )
     new_point_z = function.implementation(new_point[0], new_point[1])
 
