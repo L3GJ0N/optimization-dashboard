@@ -21,6 +21,8 @@ def update_figures_impl(
     num_contours: int,
     selected_start_point_idx: int,
     slider_value: int,
+    n_clicks: int,
+    is_new_click: bool,  # New parameter to indicate fresh click
 ) -> Any:
     """Implements the figure update logic for the optimization function visualization.
 
@@ -32,6 +34,8 @@ def update_figures_impl(
         epic_all_or_single_object_view: View mode ("all" or "selected")
         num_contours: Number of contour lines to display
         selected_start_point_idx: Index of selected start point
+        n_clicks: Number of button clicks
+        is_new_click: True if this update was triggered by a new button click
 
     Returns:
         tuple: Contains eight elements in the following order:
@@ -47,6 +51,10 @@ def update_figures_impl(
     # Get function instance and selected start point
     function = get_function_instance(function_dropdown_value)
     start_point = function.start_points[selected_start_point_idx]
+
+    if is_new_click:
+        print(f"New button click detected in impl! Count: {n_clicks}")
+        # Add your button click handling logic here
 
     print("Updating figures with function:", function_dropdown_value)
     header_3d_view = f"3D View - {function_dropdown_value}"
@@ -380,6 +388,7 @@ def register_all_callbacks(
             Input("num-contours-input", "value"),
             Input("start-point-dropdown", "value"),
             Input("view-2d-slider", "value"),
+            Input("add-point-button", "n_clicks"),  # Add button clicks as input
         ],
     )
     def update_figures(
@@ -388,13 +397,22 @@ def register_all_callbacks(
         num_contours: int,
         selected_start_point_idx: int,
         slider_value: int,
+        n_clicks: int,
     ):
+        # Check if update was triggered by button click
+        ctx = dash.callback_context
+        is_new_click = False
+        if ctx.triggered and ctx.triggered[0]["prop_id"] == "add-point-button.n_clicks":
+            is_new_click = True
+
         return update_figures_impl(
             function_dropdown_value,
             epic_all_or_single_object_view,
             num_contours,
             selected_start_point_idx or 0,  # default to first point if None
             slider_value,
+            n_clicks or 0,
+            is_new_click,
         )
 
     @app.callback(
