@@ -294,8 +294,8 @@ def update_figures_impl(
             go.Scatter(
                 x=np.sqrt((line_x - start_point[0]) ** 2 + (line_y - start_point[1]) ** 2),
                 y=line_z,
-                mode="lines",  # Add markers to show color
-                line=dict(width=2, color="red"),  # Simple line without color
+                mode="lines",
+                line=dict(width=2, color="red"),
                 name="Function along gradient",
                 showlegend=True,
             ),
@@ -314,6 +314,21 @@ def update_figures_impl(
             margin=dict(l=0, r=0, t=30, b=0),
         ),
     )
+
+    # Add gradient direction arrow using quiver
+    gradient_quiver = ff.create_quiver(
+        [0],  # x starting point
+        [0],  # y starting point
+        [1.0],  # x direction (fixed length)
+        [0],  # y direction (horizontal arrow)
+        scale=1.0,
+        arrow_scale=0.05,
+        name="- Gradient",
+        line=dict(width=2, color="red"),
+        hoverinfo="text+name",
+        showlegend=True,
+    )
+    fig_2d_view.add_trace(gradient_quiver.data[0])
 
     header_result_view = "Result View"
     fig_result_view = go.Figure()
