@@ -288,17 +288,16 @@ def update_figures_impl(
         )
     )
 
-    # Create 2D line plot
+    # Create 2D line plot showing function values along gradient direction
     fig_2d_view = go.Figure(
         data=[
             go.Scatter(
-                x=np.sqrt(
-                    (line_x - start_point[0]) ** 2 + (line_y - start_point[1]) ** 2
-                ),  # Distance from start
+                x=np.sqrt((line_x - start_point[0]) ** 2 + (line_y - start_point[1]) ** 2),
                 y=line_z,
-                mode="lines",
+                mode="lines",  # Add markers to show color
+                line=dict(width=2, color="red"),  # Simple line without color
                 name="Function along gradient",
-                line=dict(color="blue", width=2),
+                showlegend=True,
             ),
             go.Scatter(
                 x=[0],  # Start point at distance 0
