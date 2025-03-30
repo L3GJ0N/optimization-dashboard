@@ -12,8 +12,40 @@ function_ids: List[str] = FunctionFactory.available_functions()
 def create_graph_card(
     header_id: str, header_val: str, graph_id: str, graph_height: int, body_height: int
 ) -> dbc.Card:
+    # Create header content based on card type
+    if header_id == "view-2d-header":
+        header_content = dbc.Row(
+            [
+                dbc.Col(header_val, width=2),  # Reduced width to make space for button
+                dbc.Col(
+                    dcc.Slider(
+                        id="view-2d-slider",
+                        min=0,
+                        max=100,
+                        step=1,
+                        value=10,
+                        marks=None,
+                        tooltip={"placement": "bottom", "always_visible": True},
+                    ),
+                    width=8,  # Reduced width to make space for button
+                ),
+                dbc.Col(
+                    dbc.Button(
+                        "Add Point",
+                        id="add-point-button",
+                        color="primary",
+                        size="sm",
+                        className="w-100",
+                    ),
+                    width=2,
+                ),
+            ]
+        )
+    else:
+        header_content = header_val
+
     card_content = [
-        dbc.CardHeader(header_val, id=header_id),
+        dbc.CardHeader(header_content, id=header_id),
         dbc.CardBody(
             [dcc.Graph(id=graph_id, className="h-100")],
             style={"height": graph_height},
@@ -90,7 +122,7 @@ def create_first_row_graphs() -> List[dbc.Col]:
 def create_second_row_graphs() -> List[dbc.Col]:
     second_row_graphs: List[dbc.Col] = [
         dbc.Col(
-            create_graph_card("view-2d-header", "Side View", "view-2d-graph", 700, 900),
+            create_graph_card("view-2d-header", "Gradient Descent:", "view-2d-graph", 700, 900),
             width=6,
         ),
         dbc.Col(

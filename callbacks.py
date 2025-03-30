@@ -20,6 +20,7 @@ def update_figures_impl(
     epic_all_or_single_object_view: str,
     num_contours: int,
     selected_start_point_idx: int,
+    slider_value: int,
 ) -> Any:
     """Implements the figure update logic for the optimization function visualization.
 
@@ -267,7 +268,8 @@ def update_figures_impl(
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
-    header_2d_view = "Function values along negative gradient direction"
+    header_2d_view = "view-2d-header"
+    print("slider_value", slider_value)
     # Create line plot along gradient direction
     num_points = 100
     t = np.linspace(0, 1, num_points)
@@ -338,7 +340,6 @@ def update_figures_impl(
         fig_3d_view,
         header_top_view,
         fig_top_view,
-        header_2d_view,
         fig_2d_view,
         header_result_view,
         fig_result_view,
@@ -369,7 +370,6 @@ def register_all_callbacks(
             Output("view-3d-graph", "figure"),
             Output("top-view-header", "children"),
             Output("top-view-graph", "figure"),
-            Output("view-2d-header", "children"),
             Output("view-2d-graph", "figure"),
             Output("result-view-header", "children"),
             Output("result-view-graph", "figure"),
@@ -379,6 +379,7 @@ def register_all_callbacks(
             Input("epic-all-or-single-object-view", "value"),
             Input("num-contours-input", "value"),
             Input("start-point-dropdown", "value"),
+            Input("view-2d-slider", "value"),
         ],
     )
     def update_figures(
@@ -386,12 +387,14 @@ def register_all_callbacks(
         epic_all_or_single_object_view: str,
         num_contours: int,
         selected_start_point_idx: int,
+        slider_value: int,
     ):
         return update_figures_impl(
             function_dropdown_value,
             epic_all_or_single_object_view,
             num_contours,
             selected_start_point_idx or 0,  # default to first point if None
+            slider_value,
         )
 
     @app.callback(
@@ -410,3 +413,12 @@ def register_all_callbacks(
         ]
 
         return options, 0  # Select first point by default
+
+    @app.callback(
+        Output("add-point-button", "n_clicks"),
+        Input("add-point-button", "n_clicks"),
+    )
+    def handle_add_point_click(n_clicks):
+        if n_clicks is not None:
+            print(f"Add Point button was clicked! Click count: {n_clicks}")
+        return n_clicks
