@@ -55,7 +55,7 @@ def create_graph_card(
 
 
 def create_title() -> html.H1:
-    return html.H1("Dashboard", className="text-center")
+    return html.H2("Gradient Descent Analysis", className="text-left")
 
 
 def create_interactive_board() -> List[dbc.Col]:
@@ -94,7 +94,7 @@ def create_interactive_board() -> List[dbc.Col]:
                 type="number",
                 min=1,
                 max=50,
-                value=10,
+                value=12,
                 step=1,
                 placeholder="Number of contours",
             ),
@@ -139,7 +139,9 @@ def create_second_row_graphs() -> List[dbc.Col]:
             width=6,
         ),
         dbc.Col(
-            create_graph_card("result-view-header", "Result View", "result-view-graph", 700, 900),
+            create_graph_card(
+                "result-view-header", "Optimization Path", "result-view-graph", 700, 900
+            ),
             width=6,
         ),
     ]

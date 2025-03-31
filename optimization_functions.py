@@ -6,8 +6,14 @@ import math
 class ExampleFunctions(ABC):
     """Abstract base class defining interface for implementations and derivatives."""
 
-    def __init__(self):
+    def __init__(self, display_name: str):
         self._path: List[Tuple[float, float]] = []
+        self._display_name = display_name
+
+    @property
+    def display_name(self) -> str:
+        """Get the LaTeX-style display name of the function."""
+        return self._display_name
 
     @property
     def path(self) -> List[Tuple[float, float]]:
@@ -63,7 +69,8 @@ class ExampleFunctions(ABC):
 
 class Rosebrock(ExampleFunctions):
     def __init__(self):
-        super().__init__()
+        display_name = r"$ f(x,y) = (1-x)^2 + 100(y-x^2)^2 $"
+        super().__init__(display_name)
         self._x_range = (-1.5, 1.5)  # default x range
         self._y_range = (-1.5, 1.5)  # default y range
         self._start_points = [
@@ -104,7 +111,8 @@ class Rosebrock(ExampleFunctions):
 
 class GaussianVariation(ExampleFunctions):
     def __init__(self):
-        super().__init__()
+        display_name = r"$ f(x,y) = (x + \sin(y)) e^{-x^2-y^2} $"
+        super().__init__(display_name)
         self._x_range = (-2.0, 2.0)  # default x range
         self._y_range = (-2.0, 2.0)  # default y range
         self._start_points = [

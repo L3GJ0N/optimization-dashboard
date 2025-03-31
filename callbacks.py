@@ -628,13 +628,17 @@ def create_visualization(
     fig_2d_view: go.Figure = create_2d_view(current_state, state_history, gd_result)
     fig_result_view: go.Figure = create_2d_loss_view(current_state, state_history, gd_result)
 
+    display_name = current_state.function.display_name
+    view_3d_header = f"{current_state.function.__class__.__name__}  -  {display_name}"
+    top_view_header = f"Top View  -  {display_name}"
+
     return (
-        f"3D View - {current_state.function.__class__.__name__}",
+        view_3d_header,
         fig_3d_view,
-        "Top View",
+        top_view_header,
         fig_top_view,
         fig_2d_view,
-        "Result View",
+        "Optimization Path",
         fig_result_view,
     )
 
