@@ -65,3 +65,7 @@ step_point_color = "rgb(0, 255, 255)"  # Cyan/bright blue
 step_point_border_color = "rgb(0, 191, 255)"  # Slightly darker blue
 step_point_size = 10
 step_point_name = "Next"
+
+amirjio_point_color = "pink"  # Red
+amirjio_point_border_color = "red"  # Red
+amirjio_point_size = 10

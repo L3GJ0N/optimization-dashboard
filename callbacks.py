@@ -1,18 +1,15 @@
-from collections import OrderedDict
 import dash
-from dash import html, dash_table
 from dash._callback import NoUpdate
 from dash._callback_context import CallbackContext
-from dash.dependencies import Input, Output, State
-from pathlib import Path
-import pandas as pd
+from dash.dependencies import Input, Output
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 import numpy as np
 from typing import Any, Dict, List, Tuple
 
-from skimage import measure  # You may need to install scikit-image
+from skimage import measure
 
+from gd_implementations import gradient_descent_with_line_search, GradientDescentResult
 from optimization_functions import ExampleFunctions
 from utils import (
     get_function_instance,
@@ -21,6 +18,7 @@ from utils import (
     step_point_border_color,
     step_point_size,
     step_point_name,
+    amirjio_point_color,
 )
 from factory import FunctionFactory
 
@@ -92,13 +90,16 @@ class OptimizationState:
 
 
 def create_3d_view(
-    state: OptimizationState, state_history: List[OptimizationState] = None
+    state: OptimizationState,
+    state_history: List[OptimizationState] = None,
+    gd_result: GradientDescentResult = None,
 ) -> go.Figure:
     """Creates 3D surface plot with contours, points and gradient visualization.
 
     Args:
         state: Current optimization state
         state_history: Optional list of previous optimization states
+        gd_result: Optional gradient descent result with path information
     """
     # Create base surface plot
     fig = go.Figure(
@@ -259,7 +260,9 @@ def create_3d_view(
 
 
 def create_top_view(
-    state: OptimizationState, state_history: List[OptimizationState] = None
+    state: OptimizationState,
+    state_history: List[OptimizationState] = None,
+    gd_result: GradientDescentResult = None,
 ) -> go.Figure:
     """Creates top view contour plot with current point and gradient."""
     fig = go.Figure(
@@ -306,7 +309,7 @@ def create_top_view(
                 line=dict(color="gray", width=2),
                 marker=dict(
                     color="gray",
-                    size=8,
+                    size=10,
                     symbol="circle",
                 ),
                 name="Optimization path",
@@ -322,6 +325,39 @@ def create_top_view(
                 text=f"{i+1}",
                 showarrow=False,
                 font=dict(size=10, color="white"),
+            )
+
+    # Add gradient descent result path if available
+    if gd_result is not None:
+        # Extract path coordinates from gradient descent result
+        gd_path_x = [point[0] for point in gd_result.path]
+        gd_path_y = [point[1] for point in gd_result.path]
+
+        # Add path line and points
+        fig.add_trace(
+            go.Scatter(
+                x=gd_path_x,
+                y=gd_path_y,
+                mode="lines+markers",
+                line=dict(color=amirjio_point_color, width=2),
+                marker=dict(
+                    color=amirjio_point_color,
+                    size=10,
+                    symbol="circle",
+                ),
+                name="Gradient Descent Path",
+                showlegend=True,
+            )
+        )
+
+        # Add step labels
+        for i, point in enumerate(gd_result.path[:-1]):  # Skip last point
+            fig.add_annotation(
+                x=point[0],
+                y=point[1],
+                text=f"{i+1}",
+                showarrow=False,
+                font=dict(size=10, color="lightblue"),
             )
 
     # Add current point
@@ -395,7 +431,9 @@ def create_top_view(
 
 
 def create_2d_view(
-    state: OptimizationState, state_history: List[OptimizationState] = None
+    state: OptimizationState,
+    state_history: List[OptimizationState] = None,
+    gd_result: GradientDescentResult = None,
 ) -> go.Figure:
     """Creates 2D line plot showing function values along gradient direction."""
     # Calculate points along gradient direction
@@ -444,7 +482,7 @@ def create_2d_view(
 
     # Update layout
     fig.update_layout(
-        xaxis_title="Distance from current point",
+        xaxis_title="Distance from current point / Step number",
         yaxis_title="Function value",
         showlegend=True,
         margin=dict(l=0, r=0, t=30, b=0),
@@ -454,7 +492,9 @@ def create_2d_view(
 
 
 def create_2d_loss_view(
-    state: OptimizationState, state_history: List[OptimizationState] = None
+    state: OptimizationState,
+    state_history: List[OptimizationState] = None,
+    gd_result: GradientDescentResult = None,
 ) -> go.Figure:
     fig = go.Figure()
     if state_history:
@@ -485,6 +525,27 @@ def create_2d_loss_view(
             )
         )
 
+    # Add gradient descent result if available
+    if gd_result is not None:
+        # Create step numbers array
+        steps = list(range(len(gd_result.f_values)))
+
+        # Add trace for gradient descent path
+        fig.add_trace(
+            go.Scatter(
+                x=steps,
+                y=gd_result.f_values,
+                mode="lines+markers",
+                line=dict(color=amirjio_point_color, width=2),
+                marker=dict(
+                    color=amirjio_point_color,
+                    size=10,
+                    symbol="diamond",
+                ),
+                name="Gradient Descent Armijo",
+            )
+        )
+
     # Update layout
     fig.update_layout(
         xaxis_title="Step number",
@@ -497,13 +558,15 @@ def create_2d_loss_view(
 
 
 def create_visualization(
-    current_state: OptimizationState, state_history: List[OptimizationState]
+    current_state: OptimizationState,
+    state_history: List[OptimizationState],
+    gd_result: GradientDescentResult = None,
 ) -> Tuple[str | go.Figure]:
     """Creates all visualization figures based on optimization state."""
-    fig_3d_view: go.Figure = create_3d_view(current_state, state_history)
-    fig_top_view: go.Figure = create_top_view(current_state, state_history)
-    fig_2d_view: go.Figure = create_2d_view(current_state, state_history)
-    fig_result_view: go.Figure = create_2d_loss_view(current_state, state_history)
+    fig_3d_view: go.Figure = create_3d_view(current_state, state_history, gd_result)
+    fig_top_view: go.Figure = create_top_view(current_state, state_history, gd_result)
+    fig_2d_view: go.Figure = create_2d_view(current_state, state_history, gd_result)
+    fig_result_view: go.Figure = create_2d_loss_view(current_state, state_history, gd_result)
 
     return (
         f"3D View - {current_state.function.__class__.__name__}",
@@ -524,6 +587,7 @@ def update_figures_impl(
     slider_value: int,
     n_clicks: int,
     trigger_info: Dict[str, Any],
+    use_armijo: bool,
 ) -> Any:
     """Main callback implementation with separated data and visualization."""
     function: ExampleFunctions = get_function_instance(function_dropdown_value)
@@ -579,7 +643,19 @@ def update_figures_impl(
 
     # Create visualization using current state and history
     print("len of history:", len(function.state_history))
-    return create_visualization(current_state, function.state_history)
+
+    # Initialize gradient descent result
+    gd_result = None
+
+    # Check if armijo line search is used
+    if use_armijo:
+        # Implement Armijo line search logic here
+        gd_result: GradientDescentResult = gradient_descent_with_line_search(function, start_point)
+        print("GD path length:", len(gd_result.path))
+    else:
+        gd_result = None
+
+    return create_visualization(current_state, function.state_history, gd_result)
 
 
 def register_all_callbacks(
@@ -617,6 +693,7 @@ def register_all_callbacks(
             Input("start-point-dropdown", "value"),
             Input("view-2d-slider", "value"),
             Input("add-point-button", "n_clicks"),  # Add button clicks as input
+            Input("use-armijo-checkbox", "value"),  # Add new input
         ],
     )
     def update_figures(
@@ -626,6 +703,7 @@ def register_all_callbacks(
         selected_start_point_idx: int,
         slider_value: int,
         n_clicks: int,
+        use_armijo: bool,
     ) -> NoUpdate | Any:
         # Get trigger information
         ctx: CallbackContext = dash.callback_context
@@ -642,6 +720,7 @@ def register_all_callbacks(
             "is_slider_changed": trigger_id == "view-2d-slider",
             "is_view_mode_changed": trigger_id == "epic-all-or-single-object-view",
             "is_contours_changed": trigger_id == "num-contours-input",
+            "is_armijo_changed": trigger_id == "use-armijo-checkbox",
             "trigger_id": trigger_id,
         }
 
@@ -655,6 +734,7 @@ def register_all_callbacks(
             slider_value,
             n_clicks or 0,
             trigger_info,
+            use_armijo,
         )
 
     @app.callback(

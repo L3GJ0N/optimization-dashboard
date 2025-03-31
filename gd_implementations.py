@@ -1,14 +1,25 @@
 from typing import Tuple, List
 from optimization_functions import ExampleFunctions
+from dataclasses import dataclass
+
+
+@dataclass
+class GradientDescentResult:
+    """Contains results of gradient descent optimization."""
+
+    final_point: Tuple[float, float]
+    final_value: float
+    path: List[Tuple[float, float]]
+    f_values: List[float]
 
 
 def gradient_descent_with_line_search(
     function: ExampleFunctions,
     start_point: Tuple[float, float],
     tol: float = 1e-5,
-    max_iter: int = 1000,
+    max_iter: int = 50,
     max_line_search_attempts: int = 50,
-) -> Tuple[Tuple[float, float], float, List[Tuple[float, float]]]:
+) -> GradientDescentResult:
     """
     Gradient Descent with Line Search for 2D optimization problems.
 
@@ -20,13 +31,15 @@ def gradient_descent_with_line_search(
         max_line_search_attempts: Maximum attempts for line search
 
     Returns:
-        Tuple containing:
+        GradientDescentResult containing:
         - Final point as (x, y) tuple
         - Function value at final point
         - List of all intermediate points [(x0,y0), (x1,y1), ...]
+        - List of function values at each point [f(x0,y0), f(x1,y1), ...]
     """
     current_point = start_point
-    path: List[Tuple[float]] = [current_point]  # Initialize path with start point
+    path: List[Tuple[float]] = [current_point]
+    f_values: List[float] = [function.implementation(start_point[0], start_point[1])]
 
     for i in range(max_iter):
         # Get gradient at current point
@@ -61,13 +74,16 @@ def gradient_descent_with_line_search(
                 break
 
         # Update current point and add to path
-        current_point: Tuple[float] = new_point
+        current_point = new_point
         path.append(current_point)
+        f_values.append(f_new)
 
     # Calculate final function value
     final_value: float = function.implementation(current_point[0], current_point[1])
 
-    return current_point, final_value, path
+    return GradientDescentResult(
+        final_point=current_point, final_value=final_value, path=path, f_values=f_values
+    )
 
 
 # Example usage
@@ -81,9 +97,10 @@ if __name__ == "__main__":
     x0: Tuple[float] = (0.0, 0.0)
 
     # Perform gradient descent
-    final_point, final_value, optimization_path = gradient_descent_with_line_search(function, x0)
+    result = gradient_descent_with_line_search(function, x0)
 
     print(f"Starting point: {x0}")
-    print(f"Final point: {final_point}")
-    print(f"Final value: {final_value}")
-    print(f"Number of steps: {len(optimization_path) - 1}")
+    print(f"Final point: {result.final_point}")
+    print(f"Final value: {result.final_value}")
+    print(f"Number of steps: {len(result.path) - 1}")
+    print(f"Function values: {result.f_values}")

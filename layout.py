@@ -100,6 +100,19 @@ def create_interactive_board() -> List[dbc.Col]:
             ),
             width=2,
         ),
+        # Add new Armijo checkbox with improved alignment
+        dbc.Col(
+            dbc.Form(
+                dbc.Checkbox(
+                    id="use-armijo-checkbox",
+                    label="Use Armijo Line Search",
+                    value=False,
+                    className="pt-2",  # Add padding top to match input height
+                ),
+                className="d-flex align-items-center h-100",  # Center vertically
+            ),
+            width=2,
+        ),
     ]
 
     return board_elements

@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
-from typing import Any, Dict, List
-
 import click
 import dash
 import dash_bootstrap_components as dbc
