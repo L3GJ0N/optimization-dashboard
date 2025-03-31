@@ -159,6 +159,59 @@ def create_3d_view(
                 )
             )
 
+    # Add gradient descent result path if available
+    if gd_result is not None:
+        # Add all points except the last one
+        for i, point in enumerate(gd_result.path[:-1]):  # All but last point
+            next_point = gd_result.path[i + 1]
+            z = gd_result.f_values[i]
+            next_z = gd_result.f_values[i + 1]
+
+            # Add point and line as before
+            fig.add_trace(
+                go.Scatter3d(
+                    x=[point[0]],
+                    y=[point[1]],
+                    z=[z],
+                    mode="markers",
+                    marker=dict(color=amirjio_point_color, size=8, symbol="circle"),
+                    name=f"GD Step {i+1}",
+                    showlegend=True,
+                )
+            )
+
+            # Add line to next point
+            fig.add_trace(
+                go.Scatter3d(
+                    x=[point[0], next_point[0]],
+                    y=[point[1], next_point[1]],
+                    z=[z, next_z],
+                    mode="lines",
+                    line=dict(color=amirjio_point_color, width=2),
+                    showlegend=False,
+                )
+            )
+
+        # Add final point with different styling
+        final_point = gd_result.path[-1]
+        final_z = gd_result.f_values[-1]
+
+        fig.add_trace(
+            go.Scatter3d(
+                x=[final_point[0]],
+                y=[final_point[1]],
+                z=[final_z],
+                mode="markers",
+                marker=dict(
+                    color="green",  # Different color for minimum
+                    size=12,  # Slightly larger
+                    symbol="circle",
+                ),
+                name="GD minimum",
+                showlegend=True,
+            )
+        )
+
     # Add contour at current z-level and its projection
     contours = measure.find_contours(state.Z, level=state.current_z)
     for contour in contours:
@@ -329,11 +382,11 @@ def create_top_view(
 
     # Add gradient descent result path if available
     if gd_result is not None:
-        # Extract path coordinates from gradient descent result
-        gd_path_x = [point[0] for point in gd_result.path]
-        gd_path_y = [point[1] for point in gd_result.path]
+        # Extract path coordinates from gradient descent result (excluding last point)
+        gd_path_x = [point[0] for point in gd_result.path[:-1]]
+        gd_path_y = [point[1] for point in gd_result.path[:-1]]
 
-        # Add path line and points
+        # Add path line and points (excluding last point)
         fig.add_trace(
             go.Scatter(
                 x=gd_path_x,
@@ -350,15 +403,22 @@ def create_top_view(
             )
         )
 
-        # Add step labels
-        for i, point in enumerate(gd_result.path[:-1]):  # Skip last point
-            fig.add_annotation(
-                x=point[0],
-                y=point[1],
-                text=f"{i+1}",
-                showarrow=False,
-                font=dict(size=10, color="lightblue"),
+        # Add final point separately with different styling
+        final_point = gd_result.path[-1]
+        fig.add_trace(
+            go.Scatter(
+                x=[final_point[0]],
+                y=[final_point[1]],
+                mode="markers",
+                marker=dict(
+                    color="green",
+                    size=12,
+                    symbol="circle",
+                ),
+                name="GD minimum",
+                showlegend=True,
             )
+        )
 
     # Add current point
     fig.add_trace(
@@ -540,7 +600,7 @@ def create_2d_loss_view(
                 marker=dict(
                     color=amirjio_point_color,
                     size=10,
-                    symbol="diamond",
+                    symbol="circle",
                 ),
                 name="Gradient Descent Armijo",
             )
@@ -642,8 +702,6 @@ def update_figures_impl(
         current_state: OptimizationState = new_state
 
     # Create visualization using current state and history
-    print("len of history:", len(function.state_history))
-
     # Initialize gradient descent result
     gd_result = None
 
@@ -651,7 +709,6 @@ def update_figures_impl(
     if use_armijo:
         # Implement Armijo line search logic here
         gd_result: GradientDescentResult = gradient_descent_with_line_search(function, start_point)
-        print("GD path length:", len(gd_result.path))
     else:
         gd_result = None
 
@@ -723,8 +780,6 @@ def register_all_callbacks(
             "is_armijo_changed": trigger_id == "use-armijo-checkbox",
             "trigger_id": trigger_id,
         }
-
-        print(f"Callback triggered by: {trigger_info['trigger_id']}")
 
         return update_figures_impl(
             function_dropdown_value,

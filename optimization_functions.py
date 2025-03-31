@@ -108,8 +108,8 @@ class GaussianVariation(ExampleFunctions):
         self._x_range = (-2.0, 2.0)  # default x range
         self._y_range = (-2.0, 2.0)  # default y range
         self._start_points = [
-            (-1.0, 0.0),
-            (0.0, 0.0),
+            (-1.5, -0.8),
+            (-1.0, 1.4),
             (1.0, 0.0),
         ]  # default start points
 
