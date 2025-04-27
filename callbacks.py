@@ -18,7 +18,7 @@ from utils import (
     step_point_border_color,
     step_point_size,
     step_point_name,
-    amirjio_point_color,
+    armijo_point_color,
 )
 from factory import FunctionFactory
 
@@ -108,7 +108,7 @@ def create_3d_view(
                     y=[point[1]],
                     z=[z],
                     mode="markers",
-                    marker=dict(color=amirjio_point_color, size=8, symbol="circle"),
+                    marker=dict(color=armijo_point_color, size=8, symbol="circle"),
                     name=f"GD Step {i+1}",
                     showlegend=True,
                 )
@@ -121,7 +121,7 @@ def create_3d_view(
                     y=[point[1], next_point[1]],
                     z=[z, next_z],
                     mode="lines",
-                    line=dict(color=amirjio_point_color, width=2),
+                    line=dict(color=armijo_point_color, width=2),
                     showlegend=False,
                 )
             )
@@ -326,9 +326,9 @@ def create_top_view(
                 x=gd_path_x,
                 y=gd_path_y,
                 mode="lines+markers",
-                line=dict(color=amirjio_point_color, width=2),
+                line=dict(color=armijo_point_color, width=2),
                 marker=dict(
-                    color=amirjio_point_color,
+                    color=armijo_point_color,
                     size=10,
                     symbol="circle",
                 ),
@@ -530,9 +530,9 @@ def create_2d_loss_view(
                 x=steps,
                 y=gd_result.f_values,
                 mode="lines+markers",
-                line=dict(color=amirjio_point_color, width=2),
+                line=dict(color=armijo_point_color, width=2),
                 marker=dict(
-                    color=amirjio_point_color,
+                    color=armijo_point_color,
                     size=10,
                     symbol="circle",
                 ),

@@ -1,5 +1,5 @@
 from typing import Dict, List, Tuple, Type
-from optimization_functions import ExampleFunctions, Rosebrock, GaussianVariation
+from optimization_functions import ExampleFunctions, Rosenbrock, GaussianVariation
 
 
 class FunctionFactory:
@@ -7,7 +7,7 @@ class FunctionFactory:
 
     _creators: Dict[str, Type[ExampleFunctions]] = {
         "GaussianVariation": GaussianVariation,
-        "Rosebrock": Rosebrock,
+        "Rosenbrock": Rosenbrock,
         # Add more functions here as they are implemented
     }
 
@@ -82,7 +82,7 @@ class FunctionFactory:
 # Example usage
 # def main():
 #     # Create instances using the factory
-#     rosebrock = FunctionFactory.create("Rosebrock")
+#     Rosenbrock = FunctionFactory.create("Rosenbrock")
 #     gaussian = FunctionFactory.create("GaussianVariation")
 
 #     # Get list of available functions
@@ -93,5 +93,5 @@ class FunctionFactory:
 
 #     # Use the created instances
 #     x, y = 1.0, 1.0
-#     print(f"Rosebrock at ({x}, {y}): {rosebrock.implementation(x, y)}")
+#     print(f"Rosenbrock at ({x}, {y}): {Rosenbrock.implementation(x, y)}")
 #     print(f"Gaussian at ({x}, {y}): {gaussian.implementation(x, y)}")

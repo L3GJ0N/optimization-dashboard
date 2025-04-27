@@ -8,6 +8,9 @@ from numpy.typing import NDArray
 Float = np.float64
 Int = np.int64
 
+# Range type (min, max) for axis bounds
+Range = Tuple[Float, Float]
+
 # Array dimension type aliases
 Array1D = NDArray[Float]  # 1-dimensional array (vector), shape: (n,)
 Array2D = NDArray[Float]  # 2-dimensional array (matrix), shape: (m,n)

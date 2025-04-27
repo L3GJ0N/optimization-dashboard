@@ -1,22 +1,24 @@
-from typing import Tuple, List
-from optimization_functions import ExampleFunctions
+from typing import List
 from dataclasses import dataclass
+
+from optimization_functions import ExampleFunctions
+from type_hints import Float, Point2D
 
 
 @dataclass
 class GradientDescentResult:
     """Contains results of gradient descent optimization."""
 
-    final_point: Tuple[float, float]
-    final_value: float
-    path: List[Tuple[float, float]]
-    f_values: List[float]
+    final_point: Point2D
+    final_value: Float
+    path: List[Point2D]
+    f_values: List[Float]
 
 
 def gradient_descent_with_line_search(
     function: ExampleFunctions,
-    start_point: Tuple[float, float],
-    tol: float = 1e-5,
+    start_point: Point2D,
+    tol: Float = 1e-5,
     max_iter: int = 50,
     max_line_search_attempts: int = 50,
 ) -> GradientDescentResult:
@@ -38,31 +40,31 @@ def gradient_descent_with_line_search(
         - List of function values at each point [f(x0,y0), f(x1,y1), ...]
     """
     current_point = start_point
-    path: List[Tuple[float]] = [current_point]
-    f_values: List[float] = [function.implementation(start_point[0], start_point[1])]
+    path: List[Point2D] = [current_point]
+    f_values: List[Float] = [function.implementation(start_point[0], start_point[1])]
 
     for i in range(max_iter):
         # Get gradient at current point
-        grad: Tuple[float] = function.gradient(current_point[0], current_point[1])
-        grad_norm_sqr: float = grad[0] ** 2 + grad[1] ** 2
+        grad: Point2D = function.gradient(current_point[0], current_point[1])
+        grad_norm_sqr: Float = grad[0] ** 2 + grad[1] ** 2
 
         # Check convergence
         if grad_norm_sqr < tol**2:
             break
 
         # Line search to find optimal step size
-        alpha = 1.0
+        alpha: Float = 1.0
         line_search_attempts = 0
         while True:
             # Calculate potential new point
-            new_point: Tuple[float] = (
+            new_point: Point2D = (
                 current_point[0] - alpha * grad[0],
                 current_point[1] - alpha * grad[1],
             )
 
             # Calculate function values
-            f_current: float = function.implementation(current_point[0], current_point[1])
-            f_new: float = function.implementation(new_point[0], new_point[1])
+            f_current: Float = function.implementation(current_point[0], current_point[1])
+            f_new: Float = function.implementation(new_point[0], new_point[1])
 
             # Armijo condition
             if f_new <= f_current - 0.5 * alpha * grad_norm_sqr:
@@ -79,7 +81,7 @@ def gradient_descent_with_line_search(
         f_values.append(f_new)
 
     # Calculate final function value
-    final_value: float = function.implementation(current_point[0], current_point[1])
+    final_value: Float = function.implementation(current_point[0], current_point[1])
 
     return GradientDescentResult(
         final_point=current_point, final_value=final_value, path=path, f_values=f_values
@@ -91,13 +93,13 @@ if __name__ == "__main__":
     from factory import FunctionFactory
 
     # Get example function
-    function: ExampleFunctions = FunctionFactory.create("Rosebrock")
+    function: ExampleFunctions = FunctionFactory.create("Rosenbrock")
 
     # Initial point
-    x0: Tuple[float] = (0.0, 0.0)
+    x0: Point2D = (0.0, 0.0)
 
     # Perform gradient descent
-    result = gradient_descent_with_line_search(function, x0)
+    result: GradientDescentResult = gradient_descent_with_line_search(function, x0)
 
     print(f"Starting point: {x0}")
     print(f"Final point: {result.final_point}")

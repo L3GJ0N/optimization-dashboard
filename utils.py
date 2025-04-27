@@ -1,4 +1,7 @@
-from typing import Optional, Tuple
+from typing import List, Optional
+
+
+from type_hints import Int, Float, Point2D, Range
 
 from factory import FunctionFactory
 from optimization_functions import ExampleFunctions
@@ -25,11 +28,11 @@ def get_function_instance(function_name: str) -> ExampleFunctions:
 
 
 def find_grid_intersection(
-    start: Tuple[float, float],
-    direction: Tuple[float, float],
-    x_range: Tuple[float, float],
-    y_range: Tuple[float, float],
-) -> Tuple[float, float]:
+    start: Point2D,
+    direction: Point2D,
+    x_range: Range,
+    y_range: Range,
+) -> Point2D:
     """Calculate intersection of line with grid boundary.
 
     Args:
@@ -43,29 +46,29 @@ def find_grid_intersection(
     """
     # Parametric line equation: P = start + t * direction
     # Find intersection parameters for all boundaries
-    tx_min = (x_range[0] - start[0]) / direction[0] if direction[0] != 0 else float("inf")
-    tx_max = (x_range[1] - start[0]) / direction[0] if direction[0] != 0 else float("inf")
-    ty_min = (y_range[0] - start[1]) / direction[1] if direction[1] != 0 else float("inf")
-    ty_max = (y_range[1] - start[1]) / direction[1] if direction[1] != 0 else float("inf")
+    tx_min: Float = (x_range[0] - start[0]) / direction[0] if direction[0] != 0 else float("inf")
+    tx_max: Float = (x_range[1] - start[0]) / direction[0] if direction[0] != 0 else float("inf")
+    ty_min: Float = (y_range[0] - start[1]) / direction[1] if direction[1] != 0 else float("inf")
+    ty_max: Float = (y_range[1] - start[1]) / direction[1] if direction[1] != 0 else float("inf")
 
     # Get all positive intersection parameters
-    t_values = [t for t in [tx_min, tx_max, ty_min, ty_max] if t > 0]
+    t_values: List[Float] = [t for t in [tx_min, tx_max, ty_min, ty_max] if t > 0]
 
     # Use smallest positive t (first intersection)
     if not t_values:
         return start  # Fallback if no intersection found
-    t = min(t_values)
+    t: Float = min(t_values)
 
     # Calculate intersection point
     return (start[0] + t * direction[0], start[1] + t * direction[1])
 
 
 # Define consistent styling for step point
-step_point_color = "rgb(0, 255, 255)"  # Cyan/bright blue
-step_point_border_color = "rgb(0, 191, 255)"  # Slightly darker blue
-step_point_size = 10
-step_point_name = "Next"
+step_point_color: str = "rgb(0, 255, 255)"  # Cyan/bright blue
+step_point_border_color: str = "rgb(0, 191, 255)"  # Slightly darker blue
+step_point_size: Int = 10
+step_point_name: str = "Next"
 
-amirjio_point_color = "pink"  # Red
-amirjio_point_border_color = "red"  # Red
-amirjio_point_size = 10
+armijo_point_color: str = "pink"  # Red
+armijo_point_border_color: str = "red"  # Red
+armijo_point_size: Int = 10
