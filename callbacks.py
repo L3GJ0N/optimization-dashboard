@@ -9,11 +9,11 @@ from typing import Any, Dict, List, Tuple
 
 from skimage import measure
 
+from optimization_state import OptimizationState
 from gd_implementations import gradient_descent_with_line_search, GradientDescentResult
 from optimization_functions import ExampleFunctions
 from utils import (
     get_function_instance,
-    find_grid_intersection,
     step_point_color,
     step_point_border_color,
     step_point_size,
@@ -21,72 +21,6 @@ from utils import (
     amirjio_point_color,
 )
 from factory import FunctionFactory
-
-
-class OptimizationState:
-    """Holds all data needed for visualization of optimization state."""
-
-    def __init__(self, function, current_point, grid, num_contours, slider_value) -> None:
-        self.function = function
-        self.current_point = current_point
-        self.grid = grid
-        self.num_contours = num_contours
-        self.step_size = slider_value / 100.0
-
-        # Calculate basic grid data
-        self.x_min, self.x_max = grid[0]
-        self.y_min, self.y_max = grid[1]
-        self.x = np.linspace(self.x_min, self.x_max, 100)
-        self.y = np.linspace(self.y_min, self.y_max, 100)
-        self.X, self.Y = np.meshgrid(self.x, self.y)
-
-        # Calculate function values
-        self.Z = self._calculate_function_values()
-        self.z_min, self.z_max = np.min(self.Z), np.max(self.Z)
-        self.current_z = function.implementation(current_point[0], current_point[1])
-
-        # Calculate gradient information
-        self.gradient = function.gradient(current_point[0], current_point[1])
-        self.normalized_gradient = self._calculate_normalized_gradient()
-        self.gradient_scale = -1.0 / np.linalg.norm(self.gradient)
-        self.descent_direction = self._calculate_descent_direction()
-        self.step_point = self._calculate_step_point()
-
-    def _calculate_function_values(self):
-        Z = np.zeros_like(self.X)
-        for i in range(self.X.shape[0]):
-            for j in range(self.X.shape[1]):
-                Z[i, j] = self.function.implementation(self.X[i, j], self.Y[i, j])
-        return Z
-
-    def _calculate_normalized_gradient(self):
-        """Calculate normalized gradient vector."""
-        norm = np.linalg.norm(self.gradient)
-        if norm == 0:
-            return (0.0, 0.0)
-        return (self.gradient[0] / norm, self.gradient[1] / norm)
-
-    def _calculate_descent_direction(self):
-        direction = (
-            self.gradient_scale * self.gradient[0],
-            self.gradient_scale * self.gradient[1],
-        )
-        intersection: Tuple[float] = find_grid_intersection(
-            self.current_point,
-            direction,
-            (self.x_min, self.x_max),
-            (self.y_min, self.y_max),
-        )
-        return (
-            intersection[0] - self.current_point[0],
-            intersection[1] - self.current_point[1],
-        )
-
-    def _calculate_step_point(self):
-        return (
-            self.current_point[0] + self.step_size * self.descent_direction[0],
-            self.current_point[1] + self.step_size * self.descent_direction[1],
-        )
 
 
 def create_3d_view(
