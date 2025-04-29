@@ -4,8 +4,8 @@ import click
 import dash
 import dash_bootstrap_components as dbc
 
-from layout import create_layout
-from callbacks import register_all_callbacks
+from gradient_descent.ui.layout import create_layout
+from gradient_descent.ui.callbacks import register_all_callbacks
 
 
 def setup() -> dash.Dash:

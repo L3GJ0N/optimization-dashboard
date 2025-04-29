@@ -1,0 +1,67 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gradient-descent-analyzer"
+version = "0.1.0"
+description = "Interactive Gradient Descent Analysis and Visualization Tool"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Dominik Mueller", email = "dominik.a.mueller@me.com"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+dependencies = [
+    "dash==2.14.2",
+    "dash-bootstrap-components==1.5.0",
+    "numpy==1.26.3",
+    "plotly==5.18.0",
+    "scikit-image==0.22.0",
+    "pandas==2.1.4",
+    "typing-extensions==4.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black==23.12.1",
+    "pre-commit==3.6.0",
+    "pytest>=7.4.0",
+    "ruff>=0.1.13",
+]
+
+[project.scripts]
+gd-analyzer = "gradient_descent.main:main"
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "I", "N", "UP", "B", "A"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+
+[tool.hatch.build]
+include = [
+  "src/**/*.py",
+  "README.md",
+]
+exclude = [
+  "tests/**",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gradient_descent"]

@@ -1,13 +1,13 @@
 import numpy as np
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
-from typing import List, Tuple
-from type_hints import Array1D, Float
+from typing import List, Tuple, Any
 from skimage import measure
 
-from optimization_state import OptimizationState
-from gd_implementations import GradientDescentResult
-from utils import (
+from gradient_descent.utils.type_hints import Float, Array1D
+from gradient_descent.optimization.optimization_state import OptimizationState
+from gradient_descent.optimization.gd_implementations import GradientDescentResult
+from gradient_descent.utils.utils import (
     step_point_color,
     step_point_border_color,
     step_point_size,

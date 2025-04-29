@@ -2,27 +2,20 @@ import dash
 from dash._callback import NoUpdate
 from dash._callback_context import CallbackContext
 from dash.dependencies import Input, Output
-import plotly.graph_objects as go
-import plotly.figure_factory as ff
-import numpy as np
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
-from skimage import measure
-
-from optimization_state import OptimizationState
-from gd_implementations import gradient_descent_with_line_search, GradientDescentResult
-from optimization_functions import ExampleFunctions
-from utils import (
-    get_function_instance,
-    step_point_color,
-    step_point_border_color,
-    step_point_size,
-    step_point_name,
-    armijo_point_color,
+from gradient_descent.optimization.optimization_state import OptimizationState
+from gradient_descent.optimization.gd_implementations import (
+    gradient_descent_with_line_search,
+    GradientDescentResult,
 )
-from factory import FunctionFactory
-from visualization import create_visualization
-from type_hints import Point2D, GridDef
+from gradient_descent.optimization.optimization_functions import ExampleFunctions
+from gradient_descent.utils.utils import (
+    get_function_instance,
+)
+from gradient_descent.utils.factory import FunctionFactory
+from gradient_descent.ui.visualization import create_visualization
+from gradient_descent.utils.type_hints import Point2D, GridDef
 
 
 def update_figures_impl(

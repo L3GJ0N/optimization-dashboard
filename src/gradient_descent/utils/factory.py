@@ -1,5 +1,9 @@
 from typing import Dict, List, Tuple, Type
-from optimization_functions import ExampleFunctions, Rosenbrock, GaussianVariation
+from gradient_descent.optimization.optimization_functions import (
+    ExampleFunctions,
+    Rosenbrock,
+    GaussianVariation,
+)
 
 
 class FunctionFactory:

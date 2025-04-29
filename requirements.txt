@@ -1,9 +1,0 @@
-dash==2.14.2
-dash-bootstrap-components==1.5.0
-numpy==1.26.3
-plotly==5.18.0
-black==23.12.1
-pre-commit==3.6.0
-scikit-image==0.22.0  # For contour detection
-pandas==2.1.4  # For data handling
-typing-extensions==4.9.0  # For type hints

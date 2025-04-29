@@ -1,9 +1,9 @@
 import numpy as np
 
-from type_hints import Float, Array1D, Grid2D, Point2D, GridDef
+from gradient_descent.utils.type_hints import Float, Array1D, Grid2D, Point2D, GridDef
 
-from optimization_functions import ExampleFunctions
-from utils import find_grid_intersection
+from gradient_descent.optimization.optimization_functions import ExampleFunctions
+from gradient_descent.utils.utils import find_grid_intersection
 
 
 class OptimizationState:

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, List
 import math
 
-from type_hints import Float, Point2D, GridDef, Range
+from gradient_descent.utils.type_hints import Float, Point2D, GridDef, Range
 
 
 class ExampleFunctions(ABC):
