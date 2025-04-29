@@ -1,10 +1,10 @@
 from typing import List, Optional
 
 
-from type_hints import Int, Float, Point2D, Range
+from gradient_descent.utils.type_hints import Int, Float, Point2D, Range
 
-from factory import FunctionFactory
-from optimization_functions import ExampleFunctions
+from gradient_descent.utils.factory import FunctionFactory
+from gradient_descent.optimization.optimization_functions import ExampleFunctions
 
 _current_function: Optional[ExampleFunctions] = None
 

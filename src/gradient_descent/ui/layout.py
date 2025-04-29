@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
-from factory import FunctionFactory
+from gradient_descent.utils.factory import FunctionFactory
 
 function_ids: List[str] = FunctionFactory.available_functions()
 

@@ -1,8 +1,8 @@
 from typing import List
 from dataclasses import dataclass
 
-from optimization_functions import ExampleFunctions
-from type_hints import Float, Point2D
+from gradient_descent.optimization.optimization_functions import ExampleFunctions
+from gradient_descent.utils.type_hints import Float, Point2D
 
 
 @dataclass
