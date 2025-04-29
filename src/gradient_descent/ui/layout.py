@@ -1,17 +1,12 @@
-from collections import OrderedDict
-from typing import Any, Dict, List
-
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from gradient_descent.utils.factory import FunctionFactory
 
-function_ids: List[str] = FunctionFactory.available_functions()
+function_ids: list[str] = FunctionFactory.available_functions()
 
 
-def create_graph_card(
-    header_id: str, header_val: str, graph_id: str, graph_height: int, body_height: int
-) -> dbc.Card:
+def create_graph_card(header_id: str, header_val: str, graph_id: str, graph_height: int, body_height: int) -> dbc.Card:
     # Create header content based on card type
     if header_id == "view-2d-header":
         header_content = dbc.Row(
@@ -58,8 +53,8 @@ def create_title() -> html.H1:
     return html.H2("Gradient Descent Analysis", className="text-left")
 
 
-def create_interactive_board() -> List[dbc.Col]:
-    board_elements: List[dbc.Col] = [
+def create_interactive_board() -> list[dbc.Col]:
+    board_elements: list[dbc.Col] = [
         dbc.Col(
             dcc.Dropdown(
                 id="function-dropdown",
@@ -118,8 +113,8 @@ def create_interactive_board() -> List[dbc.Col]:
     return board_elements
 
 
-def create_first_row_graphs() -> List[dbc.Col]:
-    first_row_graphs: List[dbc.Col] = [
+def create_first_row_graphs() -> list[dbc.Col]:
+    first_row_graphs: list[dbc.Col] = [
         dbc.Col(
             create_graph_card("view-3d-header", "3D View", "view-3d-graph", 800, 900),
             width=6,
@@ -132,16 +127,14 @@ def create_first_row_graphs() -> List[dbc.Col]:
     return first_row_graphs
 
 
-def create_second_row_graphs() -> List[dbc.Col]:
-    second_row_graphs: List[dbc.Col] = [
+def create_second_row_graphs() -> list[dbc.Col]:
+    second_row_graphs: list[dbc.Col] = [
         dbc.Col(
             create_graph_card("view-2d-header", "Gradient Descent:", "view-2d-graph", 800, 900),
             width=6,
         ),
         dbc.Col(
-            create_graph_card(
-                "result-view-header", "Optimization Path", "result-view-graph", 800, 900
-            ),
+            create_graph_card("result-view-header", "Optimization Path", "result-view-graph", 800, 900),
             width=6,
         ),
     ]

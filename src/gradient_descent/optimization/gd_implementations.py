@@ -1,4 +1,3 @@
-from typing import List
 from dataclasses import dataclass
 
 from gradient_descent.optimization.optimization_functions import ExampleFunctions
@@ -11,8 +10,8 @@ class GradientDescentResult:
 
     final_point: Point2D
     final_value: Float
-    path: List[Point2D]
-    f_values: List[Float]
+    path: list[Point2D]
+    f_values: list[Float]
 
 
 def gradient_descent_with_line_search(
@@ -40,10 +39,10 @@ def gradient_descent_with_line_search(
         - List of function values at each point [f(x0,y0), f(x1,y1), ...]
     """
     current_point = start_point
-    path: List[Point2D] = [current_point]
-    f_values: List[Float] = [function.implementation(start_point[0], start_point[1])]
+    path: list[Point2D] = [current_point]
+    f_values: list[Float] = [function.implementation(start_point[0], start_point[1])]
 
-    for i in range(max_iter):
+    for _i in range(max_iter):
         # Get gradient at current point
         grad: Point2D = function.gradient(current_point[0], current_point[1])
         grad_norm_sqr: Float = grad[0] ** 2 + grad[1] ** 2
@@ -83,9 +82,7 @@ def gradient_descent_with_line_search(
     # Calculate final function value
     final_value: Float = function.implementation(current_point[0], current_point[1])
 
-    return GradientDescentResult(
-        final_point=current_point, final_value=final_value, path=path, f_values=f_values
-    )
+    return GradientDescentResult(final_point=current_point, final_value=final_value, path=path, f_values=f_values)
 
 
 # Example usage

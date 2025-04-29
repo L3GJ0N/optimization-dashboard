@@ -1,12 +1,8 @@
-from typing import List, Optional
-
-
-from gradient_descent.utils.type_hints import Int, Float, Point2D, Range
-
-from gradient_descent.utils.factory import FunctionFactory
 from gradient_descent.optimization.optimization_functions import ExampleFunctions
+from gradient_descent.utils.factory import FunctionFactory
+from gradient_descent.utils.type_hints import Float, Int, Point2D, Range
 
-_current_function: Optional[ExampleFunctions] = None
+_current_function: ExampleFunctions | None = None
 
 
 def get_function_instance(function_name: str) -> ExampleFunctions:
@@ -52,7 +48,7 @@ def find_grid_intersection(
     ty_max: Float = (y_range[1] - start[1]) / direction[1] if direction[1] != 0 else float("inf")
 
     # Get all positive intersection parameters
-    t_values: List[Float] = [t for t in [tx_min, tx_max, ty_min, ty_max] if t > 0]
+    t_values: list[Float] = [t for t in [tx_min, tx_max, ty_min, ty_max] if t > 0]
 
     # Use smallest positive t (first intersection)
     if not t_values:
