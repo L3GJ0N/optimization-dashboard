@@ -1,7 +1,8 @@
 """Type hint definitions for use across the project."""
 
+from typing import Annotated, TypeVar
+
 import numpy as np
-from typing import List, Tuple, TypeVar, Annotated
 from numpy.typing import NDArray
 
 # Basic numeric type aliases
@@ -9,7 +10,7 @@ Float = np.float64
 Int = np.int64
 
 # Range type (min, max) for axis bounds
-Range = Tuple[Float, Float]
+Range = tuple[Float, Float]
 
 # Array dimension type aliases
 Array1D = NDArray[Float]  # 1-dimensional array (vector), shape: (n,)
@@ -18,13 +19,13 @@ Array3D = NDArray[Float]  # 3-dimensional array (tensor), shape: (i,j,k)
 Grid2D = Array2D  # Semantic alias for 2D grid data
 
 # Shape-specific type aliases using Annotated
-Point2D = Tuple[Float, Float]
+Point2D = tuple[Float, Float]
 Points2D = Annotated[NDArray[Float], "shape=(n,2)"]
 Points3D = Annotated[NDArray[Float], "shape=(n,3)"]
 
 # Grid component type aliases
-XYPair = Tuple[Float, Float]
-GridDef = List[XYPair]  # Usually [(x_min, x_max), (y_min, y_max)]
+XYPair = tuple[Float, Float]
+GridDef = list[XYPair]  # Usually [(x_min, x_max), (y_min, y_max)]
 
 # Type variables for shapes
 N = TypeVar("N", bound=int)

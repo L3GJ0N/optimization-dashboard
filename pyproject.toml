@@ -43,16 +43,21 @@ dev = [
 gd-analyzer = "gradient_descent.main:main"
 
 [tool.black]
-line-length = 100
+line-length = 120
 target-version = ["py310"]
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py310"
-select = ["E", "F", "I", "N", "UP", "B", "A"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "W", "C"]
 ignore = []
 fixable = ["ALL"]
 unfixable = []
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.hatch.build]
 include = [

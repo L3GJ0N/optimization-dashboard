@@ -1,21 +1,22 @@
+from typing import Any
+
 import dash
 from dash._callback import NoUpdate
 from dash._callback_context import CallbackContext
 from dash.dependencies import Input, Output
-from typing import Any, Dict, List
 
-from gradient_descent.optimization.optimization_state import OptimizationState
 from gradient_descent.optimization.gd_implementations import (
-    gradient_descent_with_line_search,
     GradientDescentResult,
+    gradient_descent_with_line_search,
 )
 from gradient_descent.optimization.optimization_functions import ExampleFunctions
+from gradient_descent.optimization.optimization_state import OptimizationState
+from gradient_descent.ui.visualization import create_visualization
+from gradient_descent.utils.factory import FunctionFactory
+from gradient_descent.utils.type_hints import Point2D
 from gradient_descent.utils.utils import (
     get_function_instance,
 )
-from gradient_descent.utils.factory import FunctionFactory
-from gradient_descent.ui.visualization import create_visualization
-from gradient_descent.utils.type_hints import Point2D, GridDef
 
 
 def update_figures_impl(
@@ -25,7 +26,7 @@ def update_figures_impl(
     selected_start_point_idx: int,
     slider_value: int,
     n_clicks: int,
-    trigger_info: Dict[str, Any],
+    trigger_info: dict[str, Any],
     use_armijo: bool,
 ) -> Any:
     """Main callback implementation with separated data and visualization."""
@@ -181,10 +182,8 @@ def register_all_callbacks(
         if not function_name:
             return [], None
 
-        start_points: List[Point2D] = FunctionFactory.get_start_points(function_name)[function_name]
-        options = [
-            {"label": f"({x:.2f}, {y:.2f})", "value": i} for i, (x, y) in enumerate(start_points)
-        ]
+        start_points: list[Point2D] = FunctionFactory.get_start_points(function_name)[function_name]
+        options = [{"label": f"({x:.2f}, {y:.2f})", "value": i} for i, (x, y) in enumerate(start_points)]
 
         return options, 0  # Select first point by default
 

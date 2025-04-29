@@ -1,8 +1,7 @@
 import numpy as np
 
-from gradient_descent.utils.type_hints import Float, Array1D, Grid2D, Point2D, GridDef
-
 from gradient_descent.optimization.optimization_functions import ExampleFunctions
+from gradient_descent.utils.type_hints import Array1D, Float, Grid2D, GridDef, Point2D
 from gradient_descent.utils.utils import find_grid_intersection
 
 
@@ -47,11 +46,11 @@ class OptimizationState:
         self.step_point: Point2D = self._calculate_step_point()
 
     def _calculate_function_values(self) -> Grid2D:
-        Z: Grid2D = np.zeros_like(self.X)
+        z: Grid2D = np.zeros_like(self.X)
         for i in range(self.X.shape[0]):
             for j in range(self.X.shape[1]):
-                Z[i, j] = self.function.implementation(self.X[i, j], self.Y[i, j])
-        return Z
+                z[i, j] = self.function.implementation(self.X[i, j], self.Y[i, j])
+        return z
 
     def _calculate_normalized_gradient(self) -> Point2D:
         """Calculate normalized gradient vector."""

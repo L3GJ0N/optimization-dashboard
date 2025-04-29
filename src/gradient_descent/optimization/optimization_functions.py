@@ -1,15 +1,14 @@
-from abc import ABC, abstractmethod
-from typing import Any, List
 import math
+from abc import ABC, abstractmethod
 
-from gradient_descent.utils.type_hints import Float, Point2D, GridDef, Range
+from gradient_descent.utils.type_hints import Float, GridDef, Point2D, Range
 
 
 class ExampleFunctions(ABC):
     """Abstract base class defining interface for implementations and derivatives."""
 
     def __init__(self, display_name: str) -> None:
-        self._path: List[Point2D] = []
+        self._path: list[Point2D] = []
         self._display_name = display_name
 
     @property
@@ -18,12 +17,12 @@ class ExampleFunctions(ABC):
         return self._display_name
 
     @property
-    def path(self) -> List[Point2D]:
+    def path(self) -> list[Point2D]:
         """Get the current optimization path."""
         return self._path
 
     @path.setter
-    def path(self, value: List[Point2D]) -> None:
+    def path(self, value: list[Point2D]) -> None:
         """Update the optimization path.
 
         Args:
@@ -32,17 +31,13 @@ class ExampleFunctions(ABC):
         if not isinstance(value, list):
             raise TypeError("Path must be a list")
         for point in value:
-            if not (
-                isinstance(point, tuple)
-                and len(point) == 2
-                and all(isinstance(x, (int, float)) for x in point)
-            ):
+            if not (isinstance(point, tuple) and len(point) == 2 and all(isinstance(x, int | float) for x in point)):
                 raise ValueError("Path must contain tuples of 2 float values")
         self._path = value
 
     @property
     @abstractmethod
-    def start_points(self) -> List[Point2D]:
+    def start_points(self) -> list[Point2D]:
         """Abstract property that returns the initial points for optimization."""
         pass
 
@@ -75,14 +70,14 @@ class Rosenbrock(ExampleFunctions):
         super().__init__(display_name)
         self._x_range: Range = (-1.5, 1.5)  # default x range
         self._y_range: Range = (-1.5, 1.5)  # default y range
-        self._start_points: List[Point2D] = [
+        self._start_points: list[Point2D] = [
             (-1.0, -1.0),
             (0.0, 0.0),
             (1.0, 1.0),
         ]  # default start points
 
     @property
-    def start_points(self) -> List[Point2D]:
+    def start_points(self) -> list[Point2D]:
         return self._start_points
 
     def implementation(self, x: Float, y: Float) -> Float:
@@ -117,14 +112,14 @@ class GaussianVariation(ExampleFunctions):
         super().__init__(display_name)
         self._x_range: Range = (-2.0, 2.0)  # default x range
         self._y_range: Range = (-2.0, 2.0)  # default y range
-        self._start_points: List[Point2D] = [
+        self._start_points: list[Point2D] = [
             (-1.5, -0.8),
             (-1.0, 1.4),
             (1.0, 0.0),
         ]  # default start points
 
     @property
-    def start_points(self) -> List[Point2D]:
+    def start_points(self) -> list[Point2D]:
         return self._start_points
 
     def implementation(self, x: Float, y: Float) -> Float:

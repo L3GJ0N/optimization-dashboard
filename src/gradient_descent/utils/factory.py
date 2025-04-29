@@ -1,15 +1,14 @@
-from typing import Dict, List, Tuple, Type
 from gradient_descent.optimization.optimization_functions import (
     ExampleFunctions,
-    Rosenbrock,
     GaussianVariation,
+    Rosenbrock,
 )
 
 
 class FunctionFactory:
     """Factory class for creating ExampleFunctions instances."""
 
-    _creators: Dict[str, Type[ExampleFunctions]] = {
+    _creators: dict[str, type[ExampleFunctions]] = {
         "GaussianVariation": GaussianVariation,
         "Rosenbrock": Rosenbrock,
         # Add more functions here as they are implemented
@@ -34,7 +33,7 @@ class FunctionFactory:
         return creator()
 
     @classmethod
-    def register(cls, name: str, creator: Type[ExampleFunctions]) -> None:
+    def register(cls, name: str, creator: type[ExampleFunctions]) -> None:
         """Registers a new function type.
 
         Args:
@@ -49,7 +48,7 @@ class FunctionFactory:
         return list(cls._creators.keys())
 
     @classmethod
-    def get_start_points(cls, function_name: str = None) -> Dict[str, List[Tuple[float, float]]]:
+    def get_start_points(cls, function_name: str = None) -> dict[str, list[tuple[float, float]]]:
         """Get start points for specified function or all registered functions.
 
         Args:

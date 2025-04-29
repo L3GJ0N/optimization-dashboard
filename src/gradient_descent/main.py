@@ -4,8 +4,8 @@ import click
 import dash
 import dash_bootstrap_components as dbc
 
-from gradient_descent.ui.layout import create_layout
 from gradient_descent.ui.callbacks import register_all_callbacks
+from gradient_descent.ui.layout import create_layout
 
 
 def setup() -> dash.Dash:
@@ -19,8 +19,7 @@ def setup() -> dash.Dash:
 
 
 @click.command(
-    help="""The last instance before failure. Everything you want to understand for gradient descent analysis.
-    """
+    help="""The last instance before failure. Everything you want to understand for gradient descent analysis."""
 )
 @click.option(
     "--port",
