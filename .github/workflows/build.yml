@@ -33,9 +33,9 @@ jobs:
         run: uv run pytest tests/test_integration/
         shell: bash
 
-      # - name: Run unit tests (ui)
-      #   run: uv run pytest tests/test_ui/
-      #   shell: bash
+      - name: Run unit tests (ui)
+        run: uv run pytest tests/test_ui/
+        shell: bash
 
       # - name: Run unit tests (e2e)
       #   run: uv run pytest tests/test_e2e/

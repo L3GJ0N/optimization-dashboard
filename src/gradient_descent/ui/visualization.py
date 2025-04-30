@@ -274,7 +274,7 @@ def create_top_view(
     )
 
     # Add path points and connections from history
-    if len(state_history) > 1:
+    if state_history is not None and len(state_history) > 1:
         # Extract path coordinates
         path_x: list[Float] = [s.current_point[0] for s in state_history]
         path_y: list[Float] = [s.current_point[1] for s in state_history]
