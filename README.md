@@ -1,6 +1,7 @@
 # Gradient Descent Analysis Dashboard
 
 An interactive visualization tool for understanding gradient descent optimization in 2D and 3D. The dashboard allows you to:
+
 - Visualize different optimization functions
 - Analyze gradient descent steps
 - Interact with the optimization process
@@ -9,7 +10,7 @@ An interactive visualization tool for understanding gradient descent optimizatio
 ## Setup
 
 ### Prerequisites
-- Python 3.10 or higher
+
 - [uv](https://astral.sh/uv) package manager
 
 ### Installing uv
@@ -29,13 +30,16 @@ For more installation options, visit the [uv documentation](https://github.com/a
 ### Installation
 
 1. Clone the repository
+
 ```bash
 git clone https://github.com/yourusername/gradient-descent-analysis.git
 cd gradient-descent-analysis
 ```
 
-2. Running the application
+1. Running the application
+
 The simplest way to run the application is using uv run:
+
 ```bash
 uv run gd-analyzer
 ```
@@ -59,9 +63,9 @@ uv run gd-analyzer --port 8080 --debug
 ```
 
 After starting, open your web browser and navigate to:
+
 - Default mode: `http://localhost:8050`
 - Custom port: `http://localhost:<port>`
-
 
 ## Project Structure
 
@@ -74,6 +78,27 @@ fachvortrag/
 │       └── utils/                # Utilities
 ├── tests/                        # Test directory
 └── assets/                       # Static assets
+```
+
+## Local development
+
+### Install development environment
+
+```bash
+uv sync --extra dev
+```
+
+### Run tests
+
+```bash
+uv run pytest tests
+```
+
+**NOTE**: To be able to run the e2e tests you may need to install the playwright dependencies once
+
+```bash
+source .venv/bin/activate
+playwright install
 ```
 
 ## License
