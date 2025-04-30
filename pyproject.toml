@@ -8,10 +8,8 @@ version = "0.1.0"
 description = "Interactive Gradient Descent Analysis and Visualization Tool"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
-authors = [
-    {name = "Dominik Mueller", email = "dominik.a.mueller@me.com"},
-]
+license = { text = "MIT" }
+authors = [{ name = "Dominik Mueller", email = "dominik.a.mueller@me.com" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Education",
@@ -41,6 +39,7 @@ dev = [
     "playwright>=1.41.0",
     "pytest-playwright>=0.4.0",
 ]
+hosting = ["gunicorn==23.0.0"]
 
 [project.scripts]
 gd-analyzer = "gradient_descent.main:main"
@@ -63,13 +62,8 @@ unfixable = []
 convention = "google"
 
 [tool.hatch.build]
-include = [
-  "src/**/*.py",
-  "README.md",
-]
-exclude = [
-  "tests/**",
-]
+include = ["src/**/*.py", "README.md"]
+exclude = ["tests/**"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gradient_descent"]
@@ -77,14 +71,11 @@ packages = ["src/gradient_descent"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::UserWarning",
-]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
-    "e2e: End-to-end tests"
+    "e2e: End-to-end tests",
 ]
 
 [tool.coverage.run]

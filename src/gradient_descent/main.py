@@ -18,6 +18,10 @@ def setup() -> dash.Dash:
     return app
 
 
+dash_app = setup()
+server = dash_app.server
+
+
 @click.command(
     help="""The last instance before failure. Everything you want to understand for gradient descent analysis."""
 )
@@ -42,7 +46,7 @@ def main(
     """
 
     # run dash app
-    setup().run(port=port, debug=debug)
+    dash_app.run(port=port, debug=debug)
 
 
 if __name__ == "__main__":
