@@ -37,6 +37,12 @@ jobs:
         run: uv run pytest tests/test_ui/
         shell: bash
 
-      # - name: Run unit tests (e2e)
-      #   run: uv run pytest tests/test_e2e/
-      #   shell: bash
+      - name: Install browsers
+        run: |
+          source .venv/bin/activate
+          playwright install
+        shell: bash
+
+      - name: Run unit tests (e2e)
+        run: uv run pytest tests/test_e2e/
+        shell: bash

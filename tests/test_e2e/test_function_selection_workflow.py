@@ -27,14 +27,14 @@ def test_app_loads_and_functions(dash_app_url, page):
     page.goto(dash_app_url)
 
     # Wait for the app to load
-    page.wait_for_selector("h1:has-text('Gradient Descent Analysis')")
+    page.wait_for_selector("h2:has-text('Gradient Descent Analysis')")
 
     # Verify function dropdown exists and interact with it
     function_dropdown = page.locator("#function-dropdown")
     assert function_dropdown.is_visible()
 
     # Check that the 3D graph loads
-    graph_3d = page.locator("#view-3d")
+    graph_3d = page.locator("#view-3d-graph")
     assert graph_3d.is_visible()
 
     # Test passes if we got here without errors
