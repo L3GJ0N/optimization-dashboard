@@ -19,3 +19,5 @@ jobs:
 
       - run: uvx pre-commit run --show-diff-on-failure --from-ref origin/${{ github.event.pull_request.base.ref }} --to-ref HEAD --show-diff-on-failure
         shell: bash
+
+      - uses: reviewdog/action-typos@v1 # Chek fro typoss
