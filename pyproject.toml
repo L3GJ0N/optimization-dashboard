@@ -36,7 +36,10 @@ dev = [
     "black==23.12.1",
     "pre-commit==3.6.0",
     "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
     "ruff>=0.1.13",
+    "playwright>=1.41.0",
+    "pytest-playwright>=0.4.0",
 ]
 
 [project.scripts]
@@ -70,3 +73,20 @@ exclude = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gradient_descent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests"
+]
+
+[tool.coverage.run]
+source = ["src/gradient_descent"]
+omit = ["tests/*"]

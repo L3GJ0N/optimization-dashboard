@@ -13,10 +13,30 @@ from gradient_descent.optimization.optimization_functions import ExampleFunction
 from gradient_descent.optimization.optimization_state import OptimizationState
 from gradient_descent.ui.visualization import create_visualization
 from gradient_descent.utils.factory import FunctionFactory
-from gradient_descent.utils.type_hints import Point2D
+from gradient_descent.utils.type_hints import Int, Point2D
 from gradient_descent.utils.utils import (
     get_function_instance,
 )
+
+
+def update_start_points_logic(function_name: str) -> tuple[list[dict[str, Any]], Int | None]:
+    """Update start point dropdown options based on selected function."""
+    if not function_name:
+        return [], None
+
+    start_points: list[Point2D] = FunctionFactory.get_start_points(function_name)[function_name]
+    options: list[dict[str, Any]] = [
+        {"label": f"({x:.2f}, {y:.2f})", "value": i} for i, (x, y) in enumerate(start_points)
+    ]
+
+    return options, 0  # Select first point by default
+
+
+def handle_add_point_click_logic(n_clicks) -> Any:
+    """Handle the click event of the add point button."""
+    if n_clicks is not None:
+        print(f"Add Point button was clicked! Click count: {n_clicks}")
+    return n_clicks
 
 
 def update_figures_impl(
@@ -177,15 +197,9 @@ def register_all_callbacks(
         Output("start-point-dropdown", "value"),
         Input("function-dropdown", "value"),
     )
-    def update_start_points(function_name: str):
+    def update_start_points(function_name: str) -> tuple[list[dict[str, Any]], Int | None]:
         """Update start point dropdown options based on selected function."""
-        if not function_name:
-            return [], None
-
-        start_points: list[Point2D] = FunctionFactory.get_start_points(function_name)[function_name]
-        options = [{"label": f"({x:.2f}, {y:.2f})", "value": i} for i, (x, y) in enumerate(start_points)]
-
-        return options, 0  # Select first point by default
+        return update_start_points_logic(function_name)
 
     @app.callback(
         Output("add-point-button", "n_clicks"),
