@@ -1,0 +1,42 @@
+name: build
+
+on:
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetches all history for all tags and branches
+
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Run pre-commit hooks
+        run: uvx pre-commit run --show-diff-on-failure --from-ref origin/${{ github.event.pull_request.base.ref }} --to-ref HEAD
+        shell: bash
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+        shell: bash
+
+      - name: Run unit tests (optimization)
+        run: uv run pytest tests/test_optimization/
+        shell: bash
+
+      - name: Run unit tests (integration)
+        run: uv run pytest tests/test_integration/
+        shell: bash
+
+      - name: Run unit tests (ui)
+        run: uv run pytest tests/test_ui/
+        shell: bash
+
+      # - name: Run unit tests (e2e)
+      #   run: uv run pytest tests/test_e2e/
+      #   shell: bash
