@@ -4,10 +4,17 @@ on:
   pull_request:
     branches:
       - "**"
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -46,3 +53,20 @@ jobs:
       - name: Run unit tests (e2e)
         run: uv run pytest tests/test_e2e/
         shell: bash
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        if: github.ref == 'refs/heads/main'
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: ghcr.io/l3gj0n/optimization-dashboard:latest
+          push: true
