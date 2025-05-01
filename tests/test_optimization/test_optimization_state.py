@@ -4,8 +4,19 @@ from gradient_descent.optimization.optimization_state import OptimizationState
 def test_state_initialization(rosenbrock_function, origin_point, standard_grid):
     """Test that the optimization state initializes correctly."""
     # Arrange & Act
+    step_size_update_info = {
+        "sigma-param-input": 0.5,
+        "beta-param-input": 0.5,
+        "is_update_param_button_clicked": False,
+    }
+    # Create an instance of OptimizationState
     state = OptimizationState(
-        function=rosenbrock_function, current_point=origin_point, grid=standard_grid, num_contours=10, slider_value=50
+        function=rosenbrock_function,
+        current_point=origin_point,
+        grid=standard_grid,
+        num_contours=10,
+        slider_value=50,
+        step_size_update_info=step_size_update_info,
     )
 
     # Assert
@@ -14,6 +25,8 @@ def test_state_initialization(rosenbrock_function, origin_point, standard_grid):
     assert state.grid == standard_grid
     assert state.num_contours == 10
     assert state.step_size == 0.5
+    assert state.alpha == 0.5
+    assert state.beta == 0.5
 
     # Check calculated values
     assert state.x_min == -2.0
