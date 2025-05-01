@@ -27,7 +27,7 @@ jobs:
       - name: Run pre-commit hooks
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            uvx pre-commit run --show-diff-on-failure --all-files --color=always
+            SKIP=no-commit-to-branch uvx pre-commit run --show-diff-on-failure --all-files --color=always
           else
             uvx pre-commit run --show-diff-on-failure --from-ref origin/${{ github.event.pull_request.base.ref }} --to-ref HEAD --color=always
           fi
