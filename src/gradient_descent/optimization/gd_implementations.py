@@ -17,6 +17,8 @@ class GradientDescentResult:
 def gradient_descent_with_line_search(
     function: ExampleFunctions,
     start_point: Point2D,
+    sigma: Float = 0.5,  # Armijo slope parameter
+    beta: Float = 0.5,  # Step size reduction factor
     tol: Float = 1e-5,
     max_iter: int = 50,
     max_line_search_attempts: int = 50,
@@ -27,6 +29,8 @@ def gradient_descent_with_line_search(
     Args:
         function: Instance of ExampleFunctions containing implementation and gradient
         start_point: Initial point as (x, y) tuple
+        sigma: Armijo condition parameter controlling acceptable decrease (0.5 default)
+        beta: Step size reduction factor for line search (0.5 default)
         tol: Tolerance for convergence
         max_iter: Maximum number of iterations
         max_line_search_attempts: Maximum attempts for line search
@@ -51,25 +55,28 @@ def gradient_descent_with_line_search(
         if grad_norm_sqr < tol**2:
             break
 
+        # Reset step size at the beginning of each iteration
+        step_size: Float = 1.0
+
         # Line search to find optimal step size
-        alpha: Float = 1.0
         line_search_attempts = 0
         while True:
             # Calculate potential new point
             new_point: Point2D = (
-                current_point[0] - alpha * grad[0],
-                current_point[1] - alpha * grad[1],
+                current_point[0] - step_size * grad[0],
+                current_point[1] - step_size * grad[1],
             )
 
             # Calculate function values
             f_current: Float = function.implementation(current_point[0], current_point[1])
             f_new: Float = function.implementation(new_point[0], new_point[1])
 
-            # Armijo condition
-            if f_new <= f_current - 0.5 * alpha * grad_norm_sqr:
+            # Armijo condition - use sigma parameter for slope control
+            if f_new <= f_current - sigma * step_size * grad_norm_sqr:
                 break
 
-            alpha *= 0.5
+            # Reduce step size using beta parameter
+            step_size *= beta
             line_search_attempts += 1
             if line_search_attempts > max_line_search_attempts:
                 break
@@ -87,7 +94,7 @@ def gradient_descent_with_line_search(
 
 # Example usage
 if __name__ == "__main__":
-    from factory import FunctionFactory
+    from gradient_descent.utils.factory import FunctionFactory
 
     # Get example function
     function: ExampleFunctions = FunctionFactory.create("Rosenbrock")

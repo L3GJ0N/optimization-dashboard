@@ -3,7 +3,7 @@ from typing import Any
 import dash
 from dash._callback import NoUpdate
 from dash._callback_context import CallbackContext
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from gradient_descent.optimization.gd_implementations import (
     GradientDescentResult,
@@ -41,13 +41,13 @@ def handle_add_point_click_logic(n_clicks) -> Any:
 
 def update_figures_impl(
     function_dropdown_value: str,
-    epic_all_or_single_object_view: str,
     num_contours: int,
     selected_start_point_idx: int,
     slider_value: int,
     n_clicks: int,
     trigger_info: dict[str, Any],
     use_armijo: bool,
+    step_size_update_info: dict[str, Any],
 ) -> Any:
     """Main callback implementation with separated data and visualization."""
     function: ExampleFunctions = get_function_instance(function_dropdown_value)
@@ -65,6 +65,7 @@ def update_figures_impl(
             grid=function.grid,
             num_contours=num_contours,
             slider_value=slider_value,
+            step_size_update_info=step_size_update_info,
         )
         function.state_history = [initial_state]
 
@@ -79,6 +80,7 @@ def update_figures_impl(
             grid=function.grid,
             num_contours=num_contours,
             slider_value=slider_value,
+            step_size_update_info=step_size_update_info,
         )
         function.state_history = [initial_state]
         current_state = initial_state
@@ -97,6 +99,7 @@ def update_figures_impl(
             grid=function.grid,
             num_contours=num_contours,
             slider_value=slider_value,
+            step_size_update_info=step_size_update_info,
         )
         function.state_history.append(new_state)
         current_state: OptimizationState = new_state
@@ -108,7 +111,12 @@ def update_figures_impl(
     # Check if armijo line search is used
     if use_armijo:
         # Implement Armijo line search logic here
-        gd_result: GradientDescentResult = gradient_descent_with_line_search(function, start_point)
+        sigma: float = step_size_update_info.get("sigma-param-input", 0.5)
+        beta: float = step_size_update_info.get("beta-param-input", 0.5)
+        # Perform gradient descent with line search
+        gd_result: GradientDescentResult = gradient_descent_with_line_search(
+            function, start_point, sigma=sigma, beta=beta
+        )
     else:
         gd_result = None
 
@@ -145,22 +153,26 @@ def register_all_callbacks(
         ],
         [
             Input("function-dropdown", "value"),
-            Input("epic-all-or-single-object-view", "value"),
             Input("num-contours-input", "value"),
             Input("start-point-dropdown", "value"),
             Input("view-2d-slider", "value"),
             Input("add-point-button", "n_clicks"),  # Add button clicks as input
             Input("use-armijo-checkbox", "value"),  # Add new input
+            State("sigma-param-input", "value"),  # Add alpha parameter input
+            State("beta-param-input", "value"),  # Add beta parameter input
+            Input("update-params-button", "n_clicks"),  # Add button clicks as input
         ],
     )
     def update_figures(
         function_dropdown_value: str,
-        epic_all_or_single_object_view: str,
         num_contours: int,
         selected_start_point_idx: int,
         slider_value: int,
         n_clicks: int,
         use_armijo: bool,
+        sigma_param: float,
+        beta_param: float,
+        update_param_button_clicks: int,
     ) -> NoUpdate | Any:
         # Get trigger information
         ctx: CallbackContext = dash.callback_context
@@ -175,21 +187,30 @@ def register_all_callbacks(
             "is_function_changed": trigger_id == "function-dropdown",
             "is_start_point_changed": trigger_id == "start-point-dropdown",
             "is_slider_changed": trigger_id == "view-2d-slider",
-            "is_view_mode_changed": trigger_id == "epic-all-or-single-object-view",
             "is_contours_changed": trigger_id == "num-contours-input",
             "is_armijo_changed": trigger_id == "use-armijo-checkbox",
             "trigger_id": trigger_id,
         }
 
+        step_size_update_info: dict[str, Any] = {
+            "sigma-param-input": sigma_param,
+            "beta-param-input": beta_param,
+            "is_update_param_button_clicked": trigger_id == "update-params-button",
+        }
+
+        if step_size_update_info["is_update_param_button_clicked"]:
+            print("New alpha and beta values received")
+            print(f"Sigma: {sigma_param}, Beta: {beta_param}")
+
         return update_figures_impl(
             function_dropdown_value,
-            epic_all_or_single_object_view,
             num_contours,
             selected_start_point_idx or 0,  # default to first point if None
             slider_value,
             n_clicks or 0,
             trigger_info,
             use_armijo,
+            step_size_update_info,
         )
 
     @app.callback(

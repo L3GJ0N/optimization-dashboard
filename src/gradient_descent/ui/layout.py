@@ -55,6 +55,7 @@ def create_title() -> html.H1:
 
 def create_interactive_board() -> list[dbc.Col]:
     board_elements: list[dbc.Col] = [
+        # Element 1: Function dropdown
         dbc.Col(
             dcc.Dropdown(
                 id="function-dropdown",
@@ -63,26 +64,17 @@ def create_interactive_board() -> list[dbc.Col]:
             ),
             width=3,
         ),
+        # Element 2: Start point dropdown
         dbc.Col(
             dcc.Dropdown(
                 id="start-point-dropdown",
-                options=[],  # Will be populated by callback
+                options=[],
                 value=None,
                 placeholder="Select start point",
             ),
             width=2,
         ),
-        dbc.Col(
-            dcc.Dropdown(
-                id="epic-all-or-single-object-view",
-                options=[
-                    {"label": "Show all", "value": "all"},
-                    {"label": "Show only selected", "value": "selected"},
-                ],
-                value="all",
-            ),
-            width=2,
-        ),
+        # Element 3: Number of contours input
         dbc.Col(
             dcc.Input(
                 id="num-contours-input",
@@ -95,18 +87,60 @@ def create_interactive_board() -> list[dbc.Col]:
             ),
             width=2,
         ),
-        # Add new Armijo checkbox with improved alignment
+        # Element 4: Armijo checkbox (standalone)
         dbc.Col(
-            dbc.Form(
-                dbc.Checkbox(
-                    id="use-armijo-checkbox",
-                    label="Use Armijo Line Search",
-                    value=False,
-                    className="pt-2",  # Add padding top to match input height
-                ),
-                className="d-flex align-items-center h-100",  # Center vertically
+            dbc.Checkbox(
+                id="use-armijo-checkbox",
+                label="Use Armijo Line Search",
+                value=False,
+                className="mt-2",  # Add margin top for alignment
             ),
             width=2,
+        ),
+        # Element 5: Alpha parameter with label
+        dbc.Col(
+            dbc.InputGroup(
+                [
+                    dbc.InputGroupText("σ:"),
+                    dbc.Input(
+                        id="sigma-param-input",
+                        type="number",
+                        min=0,
+                        max=1,
+                        value=0.5,
+                        step=0.01,
+                    ),
+                ]
+            ),
+            width=1,
+        ),
+        # Element 6: Beta parameter with label
+        dbc.Col(
+            dbc.InputGroup(
+                [
+                    dbc.InputGroupText("β:"),
+                    dbc.Input(
+                        id="beta-param-input",
+                        type="number",
+                        min=0,
+                        max=1,
+                        value=0.5,
+                        step=0.01,
+                    ),
+                ]
+            ),
+            width=1,
+        ),
+        # Element 7: Apply button
+        dbc.Col(
+            dbc.Button(
+                "Apply",
+                id="update-params-button",
+                color="primary",
+                size="sm",
+                className="w-100",
+            ),
+            width=1,
         ),
     ]
 
