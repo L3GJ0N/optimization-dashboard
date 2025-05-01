@@ -25,7 +25,12 @@ jobs:
         uses: astral-sh/setup-uv@v6
 
       - name: Run pre-commit hooks
-        run: uvx pre-commit run --show-diff-on-failure --from-ref origin/${{ github.event.pull_request.base.ref }} --to-ref HEAD
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            uvx pre-commit run --show-diff-on-failure --all-files --color=always
+          else
+            uvx pre-commit run --show-diff-on-failure --from-ref origin/${{ github.event.pull_request.base.ref }} --to-ref HEAD --color=always
+          fi
         shell: bash
 
       - name: Install dependencies
