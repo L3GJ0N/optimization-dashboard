@@ -34,8 +34,18 @@ def origin_point() -> Point2D:
 @pytest.fixture
 def optimization_state(rosenbrock_function, origin_point, standard_grid) -> OptimizationState:
     """Fixture providing a standard optimization state."""
+    step_size_update_info = {
+        "sigma-param-input": 0.5,
+        "beta-param-input": 0.5,
+        "is_update_param_button_clicked": False,
+    }
     return OptimizationState(
-        function=rosenbrock_function, current_point=origin_point, grid=standard_grid, num_contours=10, slider_value=50
+        function=rosenbrock_function,
+        current_point=origin_point,
+        grid=standard_grid,
+        num_contours=10,
+        slider_value=50,
+        step_size_update_info=step_size_update_info,
     )
 
 

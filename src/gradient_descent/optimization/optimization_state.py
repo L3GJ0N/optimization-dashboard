@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 
 from gradient_descent.optimization.optimization_functions import ExampleFunctions
@@ -15,6 +17,7 @@ class OptimizationState:
         grid: GridDef,
         num_contours: int,
         slider_value: int,
+        step_size_update_info: dict[str, Any],
     ) -> None:
         self.function: ExampleFunctions = function
         self.current_point: Point2D = current_point
@@ -31,6 +34,9 @@ class OptimizationState:
         self.y: Array1D = np.linspace(self.y_min, self.y_max, 100)
         self.X: Grid2D = np.meshgrid(self.x, self.y)[0]
         self.Y: Grid2D = np.meshgrid(self.x, self.y)[1]
+
+        self.alpha: Float = step_size_update_info.get("sigma-param-input", 0.5)
+        self.beta: Float = step_size_update_info.get("beta-param-input", 0.5)
 
         # Calculate function values
         self.Z: Grid2D = self._calculate_function_values()
