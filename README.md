@@ -1,5 +1,7 @@
 # Gradient Descent Analysis Dashboard
 
+[![build](https://github.com/L3GJ0N/optimization-dashboard/actions/workflows/build.yml/badge.svg)](https://github.com/L3GJ0N/optimization-dashboard/actions/workflows/build.yml)
+
 An interactive visualization tool for understanding gradient descent optimization in 2D and 3D. The dashboard allows you to:
 
 - Visualize different optimization functions
