@@ -67,6 +67,8 @@ def pytest_collection_modifyitems(items):
         # Auto-mark based on directory
         if "test_optimization" in item.nodeid:
             item.add_marker(pytest.mark.unit)
+        elif "test_ui" in item.nodeid:
+            item.add_marker(pytest.mark.unit)
         elif "test_integration" in item.nodeid:
             item.add_marker(pytest.mark.integration)
         elif "test_e2e" in item.nodeid:
