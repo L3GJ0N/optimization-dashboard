@@ -39,15 +39,15 @@ jobs:
         shell: bash
 
       - name: Run unit tests (optimization)
-        run: uv run pytest tests/test_optimization/
+        run: uv run pytest tests/test_optimization/ --verbose
         shell: bash
 
       - name: Run unit tests (integration)
-        run: uv run pytest tests/test_integration/
+        run: uv run pytest tests/test_integration/ --verbose
         shell: bash
 
       - name: Run unit tests (ui)
-        run: uv run pytest tests/test_ui/
+        run: uv run pytest tests/test_ui/ --verbose
         shell: bash
 
       - name: Install browsers
