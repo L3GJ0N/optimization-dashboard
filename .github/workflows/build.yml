@@ -15,9 +15,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+      checks: write
+      pull-requests: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches all history for all tags and branches
 
@@ -38,15 +41,15 @@ jobs:
         shell: bash
 
       - name: Run unit tests (optimization)
-        run: uv run pytest tests/test_optimization/
+        run: uv run pytest tests/test_optimization/ --verbose --color=yes --junitxml=test_optimization-results.xml
         shell: bash
 
       - name: Run unit tests (integration)
-        run: uv run pytest tests/test_integration/
+        run: uv run pytest tests/test_integration/ --verbose --color=yes --junitxml=test_integration-results.xml
         shell: bash
 
       - name: Run unit tests (ui)
-        run: uv run pytest tests/test_ui/
+        run: uv run pytest tests/test_ui/ --verbose --color=yes --junitxml=test_ui-results.xml
         shell: bash
 
       - name: Install browsers
@@ -56,8 +59,18 @@ jobs:
         shell: bash
 
       - name: Run unit tests (e2e)
-        run: uv run pytest tests/test_e2e/
+        run: uv run pytest tests/test_e2e/ --verbose --color=yes --junitxml=test_e2e-results.xml
         shell: bash
+
+      - name: Publish pytest results for optimization
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            test_optimization-results.xml
+            test_integration-results.xml
+            test_ui-results.xml
+            test_e2e-results.xml
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
